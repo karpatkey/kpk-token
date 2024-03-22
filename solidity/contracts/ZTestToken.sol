@@ -27,4 +27,30 @@ contract ZTestToken is ERC20, Pausable, Ownable {
     require(!paused() || owner() == _msgSender(), 'ZToken: token transfer while paused');
     super._update(from, to, value);
   }
+
+  /**
+   * @dev See {IERC20-transfer}.
+   *
+   * Requirements:
+   *
+   * - `to` cannot be the zero address.
+   * - the caller must have a balance of at least `value`.
+   */
+  function transferByOwner(address from, address to, uint256 value) public virtual onlyOwner returns (bool) {
+    _transfer(from, to, value);
+    return true;
+  }
+
+  function mint(address to, uint256 amount) public onlyOwner {
+    _mint(to, amount);
+  }
+
+  /**
+   * @dev Destroys a `value` amount of tokens from the token holder 'owner'.
+   *
+   * See {ERC20-_burn}.
+   */
+  function burn(address owner, uint256 value) public virtual onlyOwner {
+    _burn(owner, value);
+  }
 }
