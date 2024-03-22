@@ -2,6 +2,8 @@
 pragma solidity ^0.8.20;
 
 import {Greeter} from 'contracts/Greeter.sol';
+
+import {ZTestToken} from 'contracts/ZTestToken.sol';
 import {Script} from 'forge-std/Script.sol';
 import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
@@ -26,5 +28,20 @@ contract DeploySepolia is Deploy {
     IERC20 weth = IERC20(0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6);
 
     _deploy('some test greeting', weth);
+  }
+}
+
+abstract contract DeployToken is Script {
+  function _deploy(address initialOwner) internal {
+    vm.startBroadcast();
+    new ZTestToken(initialOwner);
+    vm.stopBroadcast();
+  }
+}
+
+contract DeployTokenSepolia is DeployToken {
+  function run() external {
+    address initialOwner = 0xbdAed5545b57b0b783D98c1Dd14C23975F2495bC;
+    _deploy(initialOwner);
   }
 }
