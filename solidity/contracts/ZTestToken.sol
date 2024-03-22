@@ -12,6 +12,16 @@ contract ZTestToken is ERC20, Pausable, Ownable {
     _pause();
   }
 
+  /**
+   * @dev Tokens cannot be transferred to the token contract itself.
+   */
+  error TransferToTokenContract();
+
+  /**
+   * @dev Token transfers can only be initialized by contract owner when paused.
+   */
+  error TransfersUnathorizedWhenPaused();
+
   function pause() public onlyOwner {
     _pause();
   }
@@ -21,10 +31,12 @@ contract ZTestToken is ERC20, Pausable, Ownable {
   }
 
   function _update(address from, address to, uint256 value) internal override(ERC20) {
-    require(to != address(this), 'ZToken: cannot transfer tokens to token contract');
-    // Token transfers are only possible if the contract is not paused
-    // OR if triggered by the owner of the contract
-    require(!paused() || owner() == _msgSender(), 'ZToken: token transfer while paused');
+    if (to == address(this)) {
+      revert TransferToTokenContract();
+    }
+    if (paused() && owner() != _msgSender()) {
+      revert TransfersUnathorizedWhenPaused();
+    }
     super._update(from, to, value);
   }
 
