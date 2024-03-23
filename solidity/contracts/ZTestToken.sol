@@ -4,10 +4,13 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
 
-contract ZTestToken is ERC20, Pausable, Ownable {
-  constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) {
+contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
+  constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
     _mint(msg.sender, 1_000_000 * 10 ** decimals());
     _pause();
   }
@@ -26,6 +29,8 @@ contract ZTestToken is ERC20, Pausable, Ownable {
   error InsufficientTransferAllowance(address owner, uint256 transferAllowance, uint256 needed);
 
   error InvalidTransferApproval(address owner);
+
+  error NotEnoughBalanceToRescue(IERC20 token, address beneficiary, uint256 value);
 
   /**
    * @dev Emitted when the allowance of a `spender` for an `owner` is set by
@@ -82,6 +87,10 @@ contract ZTestToken is ERC20, Pausable, Ownable {
     _burn(owner, value);
   }
 
+  function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner {
+    _rescueToken(token, beneficiary, value);
+  }
+
   function _approveTransfer(address owner, uint256 value) internal virtual {
     if (owner == address(0)) {
       revert InvalidTransferApproval(address(0));
@@ -90,7 +99,7 @@ contract ZTestToken is ERC20, Pausable, Ownable {
     emit TransferApproval(owner, value);
   }
 
-  function _update(address from, address to, uint256 value) internal override(ERC20) {
+  function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Votes) {
     if (to == address(this)) {
       revert TransferToTokenContract();
     }
@@ -119,5 +128,17 @@ contract ZTestToken is ERC20, Pausable, Ownable {
         _approve(owner, owner, currentTransferAllowance - value, false);
       }
     }
+  }
+
+  function _rescueToken(IERC20 token, address beneficiary, uint256 value) internal virtual {
+    uint256 balance = token.balanceOf(address(this));
+    if (balance < value) {
+      revert NotEnoughBalanceToRescue(token, beneficiary, value);
+    }
+    token.transfer(beneficiary, value);
+  }
+
+  function nonces(address owner) public view override(ERC20Permit, Nonces) returns (uint256) {
+    return super.nonces(owner);
   }
 }
