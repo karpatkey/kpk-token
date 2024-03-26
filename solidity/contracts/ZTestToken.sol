@@ -8,30 +8,14 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
+import {CustomErrors} from 'contracts/CustomErrors.sol';
 
-contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
+contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes, CustomErrors {
   constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
     _approveTransfer(initialOwner, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff); // For the transferFrom method where the 'from' address is the initialOnwer
   }
-
-  /**
-   * @dev Tokens cannot be transferred to the token contract itself.
-   */
-  error TransferToTokenContract();
-
-  /**
-   * @dev Indicates a failure with the caller's `transferAllowance`. Used in transfers.
-   * @param owner Address that may be allowed to transfer tokens.
-   * @param transferAllowance Amount of tokens a the owner is allowed to transfer.
-   * @param needed Minimum amount required to perform a transfer.
-   */
-  error InsufficientTransferAllowance(address owner, uint256 transferAllowance, uint256 needed);
-
-  error InvalidTransferApproval(address owner);
-
-  error NotEnoughBalanceToRescue(IERC20 token, address beneficiary, uint256 value);
 
   /**
    * @dev Emitted when the transferAllowance of for an `owner` is set by
