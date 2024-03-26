@@ -34,8 +34,8 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   error NotEnoughBalanceToRescue(IERC20 token, address beneficiary, uint256 value);
 
   /**
-   * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-   * a call to {approve}. `value` is the new allowance.
+   * @dev Emitted when the transferAllowance of for an `owner` is set by
+   * a call to {approveTransfer}. `value` is the new allowance.
    */
   event TransferApproval(address indexed owner, uint256 value);
 
@@ -120,7 +120,6 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
    * Does not update the transferAllowance value in case of infinite allowance.
    * Revert if not enough transfer allowance is available.
    *
-   * Does not emit an {Approval} event.
    */
   function _spendTransferAllowance(address owner, uint256 value) internal virtual {
     uint256 currentTransferAllowance = transferAllowance(owner);
@@ -144,5 +143,10 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
 
   function nonces(address owner) public view override(ERC20Permit, Nonces) returns (uint256) {
     return super.nonces(owner);
+  }
+
+  function _transferOwnership(address newOwner) internal override(Ownable) {
+    _approveTransfer(newOwner, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+    super._transferOwnership(newOwner);
   }
 }
