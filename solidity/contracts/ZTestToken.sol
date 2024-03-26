@@ -11,8 +11,9 @@ import '@openzeppelin/contracts/utils/Pausable.sol';
 
 contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
-    _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
+    _approveTransfer(initialOwner, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff); // For the transferFrom method where the 'from' address is the initialOnwer
   }
 
   /**
@@ -107,6 +108,9 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     if (paused() && owner() != _msgSender() && allowance < value) {
       revert InsufficientTransferAllowance(from, allowance, value);
     }
+    if (owner() != _msgSender()) {
+      _spendTransferAllowance(from, value);
+    }
     super._update(from, to, value);
   }
 
@@ -125,7 +129,7 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
         revert InsufficientTransferAllowance(owner, currentTransferAllowance, value);
       }
       unchecked {
-        _approve(owner, owner, currentTransferAllowance - value, false);
+        _approveTransfer(owner, currentTransferAllowance - value);
       }
     }
   }
