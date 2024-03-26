@@ -16,6 +16,7 @@
     "coverage": "forge coverage --match-contract Unit",
     "deploy:mainnet": "bash -c 'source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC --broadcast --private-key $MAINNET_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "deploy:sepolia": "bash -c 'source .env && forge script DeploySepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
+    "deploy:timelock:sepolia": "bash -c 'source .env && forge script DeployTimelockSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "deploy:token:sepolia": "bash -c 'source .env && forge script DeployTokenSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "lint:check": "yarn lint:sol-tests && yarn lint:sol-logic && forge fmt --check",
     "lint:fix": "sort-package-json && forge fmt && yarn lint:sol-tests --fix && yarn lint:sol-logic --fix",
