@@ -8,22 +8,18 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import {CustomErrors} from 'contracts/CustomErrors.sol';
+import {IZTT} from 'interfaces/IZTT.sol';
 
-contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes, CustomErrors {
+contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
+  mapping(address account => uint256) private _transferAllowances;
+
+  uint256 MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+
   constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
-    _approveTransfer(initialOwner, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff); // For the transferFrom method where the 'from' address is the initialOnwer
+    _approveTransfer(initialOwner, MAX_INT); // For the transferFrom method where the 'from' address is the initialOnwer
   }
-
-  /**
-   * @dev Emitted when the transferAllowance of for an `owner` is set by
-   * a call to {approveTransfer}. `value` is the new allowance.
-   */
-  event TransferApproval(address indexed owner, uint256 value);
-
-  mapping(address account => uint256) private _transferAllowances;
 
   function pause() public onlyOwner {
     _pause();
@@ -50,11 +46,6 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes, Custom
     return _transferAllowances[owner];
   }
 
-  /**
-   * @dev Destroys a `value` amount of tokens from the token holder 'owner'.
-   *
-   * See {ERC20-_burn}.
-   */
   function approveTransfer(address owner, uint256 value) public virtual onlyOwner {
     _approveTransfer(owner, value);
   }
@@ -74,6 +65,10 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes, Custom
 
   function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner {
     _rescueToken(token, beneficiary, value);
+  }
+
+  function nonces(address owner) public view override(IZTT, ERC20Permit, Nonces) returns (uint256) {
+    return super.nonces(owner);
   }
 
   function _approveTransfer(address owner, uint256 value) internal virtual {
@@ -125,12 +120,8 @@ contract ZTestToken is ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes, Custom
     token.transfer(beneficiary, value);
   }
 
-  function nonces(address owner) public view override(ERC20Permit, Nonces) returns (uint256) {
-    return super.nonces(owner);
-  }
-
   function _transferOwnership(address newOwner) internal override(Ownable) {
-    _approveTransfer(newOwner, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+    _approveTransfer(newOwner, MAX_INT);
     super._transferOwnership(newOwner);
   }
 }
