@@ -13,12 +13,10 @@ import {IZTT} from 'interfaces/IZTT.sol';
 contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   mapping(address account => uint256) private _transferAllowances;
 
-  uint256 MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
-
   constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
-    _approveTransfer(initialOwner, MAX_INT); // For the transferFrom method where the 'from' address is the initialOnwer
+    _approveTransfer(initialOwner, type(uint256).max); // For the transferFrom method where the 'from' address is the initialOnwer
   }
 
   function pause() public onlyOwner {
@@ -50,6 +48,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     _approveTransfer(owner, value);
   }
 
+  /// @inheritdoc IZTT
   function mint(address to, uint256 amount) public onlyOwner {
     _mint(to, amount);
   }
@@ -83,11 +82,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     if (to == address(this)) {
       revert TransferToTokenContract();
     }
-    uint256 allowance = transferAllowance(from);
-    if (paused() && owner() != _msgSender() && allowance < value) {
-      revert InsufficientTransferAllowance(from, allowance, value);
-    }
-    if (owner() != _msgSender()) {
+    if (paused() && owner() != _msgSender()) {
       _spendTransferAllowance(from, value);
     }
     super._update(from, to, value);
@@ -121,7 +116,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   }
 
   function _transferOwnership(address newOwner) internal override(Ownable) {
-    _approveTransfer(newOwner, MAX_INT);
+    _approveTransfer(newOwner, type(uint256).max);
     super._transferOwnership(newOwner);
   }
 }
