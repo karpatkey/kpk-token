@@ -115,7 +115,11 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     token.transfer(beneficiary, value);
   }
 
-  function _transferOwnership(address newOwner) internal override(Ownable) {
+  function _transferOwnership(address newOwner) internal virtual override(Ownable) {
+    // TODO: Check why this if is needed
+    if (owner() != address(0)) {
+      _approveTransfer(owner(), 0);
+    }
     _approveTransfer(newOwner, type(uint256).max);
     super._transferOwnership(newOwner);
   }
