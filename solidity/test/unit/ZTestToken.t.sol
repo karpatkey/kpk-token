@@ -2,6 +2,8 @@
 pragma solidity ^0.8.20;
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+
+import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 import 'forge-std/console.sol';
@@ -71,6 +73,62 @@ contract TestTransferOwnership is Base {
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _ztoken.transferOwnership(_newOwner);
+  }
+}
+
+contract TestBurn is Base {
+  function test_Burn() public {
+    address _holder = makeAddr('holder');
+    uint256 _amount = 100;
+    vm.startPrank(_owner);
+    _ztoken.mint(_holder, _amount);
+    uint256 _initialTotalSupply = _ztoken.totalSupply();
+    _ztoken.burn(_holder, _amount - 1);
+    assertEq(_ztoken.balanceOf(_holder), 1);
+    assertEq(_ztoken.totalSupply(), _initialTotalSupply - _amount + 1);
+  }
+
+  function test_BurnExpectedRevertOwner() public {
+    address _randomAddress = makeAddr('randomAddress');
+    address _holder = makeAddr('holder');
+    uint256 _amount = 100;
+    vm.prank(_owner);
+    _ztoken.mint(_holder, _amount);
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.burn(_holder, _amount - 1);
+  }
+
+  function test_BurnExpectedRevert() public {
+    address _holder = makeAddr('holder');
+    uint256 _amount = 100;
+    vm.startPrank(_owner);
+    _ztoken.mint(_holder, _amount);
+    vm.expectRevert(
+      abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amount, _amount + 1)
+    );
+    _ztoken.burn(_holder, _amount + 1);
+  }
+}
+
+contract TestMint is Base {
+  function test_Mint() public {
+    address _holder = makeAddr('holder');
+    uint256 _amount = 100;
+    uint256 _initialTotalSupply = _ztoken.totalSupply();
+    vm.prank(_owner);
+    _ztoken.mint(_holder, _amount);
+    assertEq(_ztoken.balanceOf(_holder), _amount);
+    assertEq(_ztoken.totalSupply(), _initialTotalSupply + _amount);
+  }
+
+  function test_MintExpectedRevertOwner() public {
+    address _randomAddress = makeAddr('randomAddress');
+    address _holder = makeAddr('holder');
+    uint256 _amount = 100;
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.mint(_holder, _amount);
   }
 }
 
