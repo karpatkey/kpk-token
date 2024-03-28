@@ -11,7 +11,6 @@ import {ZTestToken} from 'solidity/contracts/ZTestToken.sol';
 
 abstract contract Base is Test {
   address internal _owner = makeAddr('owner');
-
   ZTestToken internal _ztoken;
 
   function setUp() public virtual {
@@ -33,7 +32,7 @@ contract TestConstructor is Base {
 }
 
 contract TestPause is Base {
-  function test_PauseExpectedRevert() public {
+  function test_UnpauseExpectedRevert() public {
     vm.expectRevert(
       abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496)
     );
@@ -44,5 +43,17 @@ contract TestPause is Base {
     vm.prank(_owner);
     _ztoken.unpause();
     assertEq(_ztoken.paused(), false);
+  }
+}
+
+contract TestTransferOwnership is Base {
+  function test_transferOwnership() public {
+    address _newOwner = makeAddr('newOwner');
+
+    vm.prank(_owner);
+    _ztoken.transferOwnership(_newOwner);
+    assertEq(_ztoken.owner(), _newOwner);
+    assertEq(_ztoken.transferAllowance(_newOwner), type(uint256).max);
+    assertEq(_ztoken.transferAllowance(_owner), 0);
   }
 }
