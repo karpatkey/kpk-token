@@ -110,7 +110,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   function _rescueToken(IERC20 token, address beneficiary, uint256 value) internal virtual {
     uint256 balance = token.balanceOf(address(this));
     if (balance < value) {
-      revert NotEnoughBalanceToRescue(token, beneficiary, value);
+      revert NotEnoughBalanceToRescue(token, value);
     }
     token.transfer(beneficiary, value);
   }

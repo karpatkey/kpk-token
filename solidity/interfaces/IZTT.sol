@@ -14,8 +14,9 @@ interface IZTT {
                             EVENTS
   //////////////////////////////////////////////////////////////*/
   /**
-   * @dev Emitted when the transferAllowance of for an `owner` is set by
-   * a call to {approveTransfer}. `value` is the new allowance.
+   * @notice
+   * @dev Emitted when the transferAllowance for an `owner` is set by
+   * a call to {approveTransfer}. `value` is the new transfer allowance.
    */
   event TransferApproval(address indexed owner, uint256 value);
 
@@ -23,21 +24,22 @@ interface IZTT {
                             ERRORS
   //////////////////////////////////////////////////////////////*/
   /**
-   * @dev Tokens cannot be transferred to the token contract itself.
+   * @notice Tokens cannot be transferred to the token contract itself.
+   * @dev
    */
   error TransferToTokenContract();
 
   /**
    * @dev Indicates a failure with the caller's `transferAllowance`. Used in transfers.
    * @param owner Address that may be allowed to transfer tokens.
-   * @param transferAllowance Amount of tokens a the owner is allowed to transfer.
+   * @param transferAllowance Amount of tokens the owner is allowed to transfer.
    * @param needed Minimum amount required to perform a transfer.
    */
   error InsufficientTransferAllowance(address owner, uint256 transferAllowance, uint256 needed);
 
   /**
-   * @dev
-   * @param owner
+   * @dev Indicates a failure with the `owner` to be allowed to transfer tokens. Used in transfer approvals.
+   * @param owner Address that may be allowed to transfer tokens.
    */
   error InvalidTransferApproval(address owner);
 
@@ -45,20 +47,39 @@ interface IZTT {
    * @dev
    * @param owner
    */
-  error NotEnoughBalanceToRescue(IERC20 token, address beneficiary, uint256 value);
+  error NotEnoughBalanceToRescue(IERC20 token, uint256 value);
 
   /*///////////////////////////////////////////////////////////////
                             VARIABLES
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice fgbgf
+   * @dev gfbfgb
+   * @param owner fgb
+   * @return sd sdsds
+   */
   function transferAllowance(address owner) external view returns (uint256);
 
   /*///////////////////////////////////////////////////////////////
                             LOGIC
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice
+   * @dev
+   * @param from dsfdsf
+   * @param to dsfdsf
+   * @param value dsfdsf
+   * @return bool asdasd
+   */
   function transferByOwner(address from, address to, uint256 value) external returns (bool);
 
+  /**
+   * @notice
+   * @dev
+   * @param owner sdfdsfds
+   */
   function approveTransfer(address owner, uint256 value) external;
 
   /**
@@ -70,7 +91,8 @@ interface IZTT {
   function mint(address to, uint256 amount) external;
 
   /**
-   * @dev Destroys a `value` amount of tokens from the token holder 'owner'.
+   * @notice Burns tokens
+   * @dev Destroys a `value` amount of tokens held by the token holder 'owner'. Can only be called by the token contract's owner.
    *
    * See {ERC20-_burn}.
    */
