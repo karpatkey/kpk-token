@@ -190,7 +190,7 @@ contract TestRescueToken is BaseRescueToken {
   function test_rescueTokenExpectedRevert() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
-    vm.expectRevert(abi.encodeWithSelector(IZTT.NotEnoughBalanceToRescue.selector, _dai, amount + 1));
+    vm.expectRevert(abi.encodeWithSelector(IZTT.InsufficientBalanceToRescue.selector, _dai, amount + 1, amount));
     _ztoken.rescueToken(_dai, _beneficiary, amount + 1);
   }
 

@@ -45,9 +45,11 @@ interface IZTT {
 
   /**
    * @dev
-   * @param owner
+   * @param token sdf
+   * @param value sdf
+   * @param balance dsf
    */
-  error NotEnoughBalanceToRescue(IERC20 token, uint256 value);
+  error InsufficientBalanceToRescue(IERC20 token, uint256 value, uint256 balance);
 
   /*///////////////////////////////////////////////////////////////
                             VARIABLES
