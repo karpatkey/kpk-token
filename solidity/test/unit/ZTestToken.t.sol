@@ -93,6 +93,15 @@ contract TestTransferAllowance is Base {
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _ztoken.approveTransfer(_randomAddress, _amount);
   }
+
+  function test_transferAllowanceWhenPausedExpectedRevert() public {
+    uint256 _amount = 100;
+    address _holder = makeAddr('holder');
+    vm.startPrank(_owner);
+    _ztoken.unpause();
+    vm.expectRevert(abi.encodeWithSelector(IZTT.TransferApprovalWhenUnpaused.selector));
+    _ztoken.approveTransfer(_holder, _amount);
+  }
 }
 
 contract TestFirstTransfer is Base {

@@ -45,6 +45,9 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   }
 
   function approveTransfer(address owner, uint256 value) public virtual onlyOwner {
+    if (!paused()) {
+      revert TransferApprovalWhenUnpaused();
+    }
     _approveTransfer(owner, value);
   }
 

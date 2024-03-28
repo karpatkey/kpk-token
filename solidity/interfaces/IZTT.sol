@@ -38,6 +38,12 @@ interface IZTT {
   error InsufficientTransferAllowance(address owner, uint256 transferAllowance, uint256 needed);
 
   /**
+   * @notice
+   * @dev
+   */
+  error TransferApprovalWhenUnpaused();
+
+  /**
    * @dev Indicates a failure with the `owner` to be allowed to transfer tokens. Used in transfer approvals.
    * @param owner Address that may be allowed to transfer tokens.
    */
