@@ -100,7 +100,7 @@ interface IZTT {
    */
   function burn(address owner, uint256 value) external;
 
-  function rescueToken(IERC20 token, address beneficiary, uint256 value) external;
+  function rescueToken(IERC20 token, address beneficiary, uint256 value) external returns (bool);
 
   function nonces(address owner) external view returns (uint256);
 }

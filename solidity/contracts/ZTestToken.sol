@@ -62,8 +62,9 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     _burn(owner, value);
   }
 
-  function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner {
+  function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner returns (bool) {
     _rescueToken(token, beneficiary, value);
+    return true;
   }
 
   function nonces(address owner) public view override(IZTT, ERC20Permit, Nonces) returns (uint256) {
@@ -116,7 +117,6 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   }
 
   function _transferOwnership(address newOwner) internal virtual override(Ownable) {
-    // TODO: Check why this if is needed
     if (owner() != address(0)) {
       _approveTransfer(owner(), 0);
     }
