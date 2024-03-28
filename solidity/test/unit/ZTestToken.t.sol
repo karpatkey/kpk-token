@@ -22,8 +22,8 @@ contract TestConstructor is Base {
   function test_Constructor() public {
     assertEq(_ztoken.owner(), _owner);
     assertEq(_ztoken.transferAllowance(_owner), type(uint256).max);
-    assertEq(_ztoken.totalSupply(), 1_000_000e18);
-    assertEq(_ztoken.balanceOf(_owner), 1_000_000e18);
+    assertEq(_ztoken.totalSupply(), 1_000_000 * 10 ** _ztoken.decimals());
+    assertEq(_ztoken.balanceOf(_owner), 1_000_000 * 10 ** _ztoken.decimals());
     assertEq(_ztoken.name(), 'ZTest Token');
     assertEq(_ztoken.symbol(), 'ZTT');
     assertEq(_ztoken.decimals(), 18);
@@ -33,9 +33,9 @@ contract TestConstructor is Base {
 
 contract TestPause is Base {
   function test_UnpauseExpectedRevert() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496)
-    );
+    address _randomAddress = makeAddr('randomAddress');
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _ztoken.unpause();
   }
 
@@ -44,16 +44,120 @@ contract TestPause is Base {
     _ztoken.unpause();
     assertEq(_ztoken.paused(), false);
   }
+
+  function test_PauseExpectedRevert() public {
+    vm.prank(_owner);
+    _ztoken.unpause();
+    address _randomAddress = makeAddr('randomAddress');
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.pause();
+  }
 }
 
 contract TestTransferOwnership is Base {
   function test_transferOwnership() public {
     address _newOwner = makeAddr('newOwner');
-
     vm.prank(_owner);
     _ztoken.transferOwnership(_newOwner);
     assertEq(_ztoken.owner(), _newOwner);
     assertEq(_ztoken.transferAllowance(_newOwner), type(uint256).max);
     assertEq(_ztoken.transferAllowance(_owner), 0);
+  }
+
+  function test_transferOwnershipExpectedRevert() public {
+    address _randomAddress = makeAddr('randomAddress');
+    address _newOwner = makeAddr('newOwner');
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.transferOwnership(_newOwner);
+  }
+}
+
+contract TestTransferAllowance is Base {
+  function test_transferAllowance() public {
+    address _holder = makeAddr('holder');
+    uint256 amount = 100;
+    vm.startPrank(_owner);
+    assertEq(_ztoken.transferAllowance(_holder), 0);
+    _ztoken.approveTransfer(_holder, amount);
+    assertEq(_ztoken.transferAllowance(_holder), amount);
+  }
+
+  function test_transferAllowanceExpectedRevert() public {
+    address _randomAddress = makeAddr('randomAddress');
+    uint256 amount = 100;
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.approveTransfer(_randomAddress, amount);
+  }
+}
+
+contract TestTransfer is Base {
+  function test_firstTransfer() public {
+    address _recipient = makeAddr('recipient');
+    uint256 amount = 100;
+    vm.startPrank(_owner);
+    _ztoken.transfer(_recipient, amount);
+    assertEq(_ztoken.balanceOf(_recipient), amount);
+    assertEq(_ztoken.balanceOf(_owner), _ztoken.totalSupply() - amount);
+  }
+}
+
+abstract contract BaseTransfer is Base {
+  address internal _holder = makeAddr('holder');
+  uint256 internal amount = 100;
+
+  function setUp() public virtual override(Base) {
+    super.setUp();
+    vm.startPrank(_owner);
+    _ztoken.transfer(_holder, amount);
+  }
+}
+
+contract TestTransfers is BaseTransfer {
+  function test_transferExpectedRevert() public {
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_holder);
+    vm.expectRevert(abi.encodeWithSelector(IZTT.InsufficientTransferAllowance.selector, _holder, 0, amount));
+    _ztoken.transfer(_recipient, amount);
+  }
+
+  function test_transfer() public {
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _ztoken.approveTransfer(_holder, amount + 1);
+    vm.startPrank(_holder);
+    _ztoken.transfer(_recipient, amount);
+    assertEq(_ztoken.balanceOf(_recipient), amount);
+    assertEq(_ztoken.balanceOf(_holder), 0);
+    assertEq(_ztoken.transferAllowance(_holder), 1);
+  }
+
+  function test_transferInfiniteTransferAllowance() public {
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _ztoken.approveTransfer(_holder, type(uint256).max);
+    vm.startPrank(_holder);
+    _ztoken.transfer(_recipient, amount);
+    assertEq(_ztoken.balanceOf(_recipient), amount);
+    assertEq(_ztoken.balanceOf(_holder), 0);
+    assertEq(_ztoken.transferAllowance(_holder), type(uint256).max);
+  }
+
+  function test_transferByOwner() public {
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _ztoken.transferByOwner(_holder, _recipient, amount - 1);
+    assertEq(_ztoken.balanceOf(_recipient), amount - 1);
+    assertEq(_ztoken.balanceOf(_holder), 1);
+  }
+
+  function test_transferByOwnerExpectedRevert() public {
+    address _randomAddress = makeAddr('randomAddress');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _ztoken.transferByOwner(_holder, _recipient, amount - 1);
   }
 }
