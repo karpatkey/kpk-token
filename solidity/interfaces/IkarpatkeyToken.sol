@@ -9,7 +9,7 @@ import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
  * @author
  * @notice
  */
-interface IZTT {
+interface IkarpatkeyToken {
   /*///////////////////////////////////////////////////////////////
                             EVENTS
   //////////////////////////////////////////////////////////////*/

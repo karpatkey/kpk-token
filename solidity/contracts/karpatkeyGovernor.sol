@@ -11,7 +11,7 @@ import '@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 import '@openzeppelin/contracts/governance/extensions/GovernorVotes.sol';
 import '@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol';
 
-contract DaoGovernor is
+contract karpatkeyGovernor is
   Governor,
   GovernorSettings,
   GovernorCountingSimple,

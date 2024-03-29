@@ -8,12 +8,16 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import {IZTT} from 'interfaces/IZTT.sol';
+import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 
-contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
+contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
   mapping(address account => uint256) private _transferAllowances;
 
-  constructor(address initialOwner) ERC20('ZTest Token', 'ZTT') Ownable(initialOwner) ERC20Permit('ZTest Token') {
+  constructor(address initialOwner)
+    ERC20('karpatkey Token', 'KPK')
+    Ownable(initialOwner)
+    ERC20Permit('karpatkey Token')
+  {
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
     _approveTransfer(initialOwner, type(uint256).max); // For the transferFrom method where the 'from' address is the initialOnwer
@@ -51,7 +55,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     _approveTransfer(owner, value);
   }
 
-  /// @inheritdoc IZTT
+  /// @inheritdoc IkarpatkeyToken
   function mint(address to, uint256 amount) public onlyOwner {
     _mint(to, amount);
   }
@@ -70,7 +74,7 @@ contract ZTestToken is IZTT, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
     return true;
   }
 
-  function nonces(address owner) public view override(IZTT, ERC20Permit, Nonces) returns (uint256) {
+  function nonces(address owner) public view override(IkarpatkeyToken, ERC20Permit, Nonces) returns (uint256) {
     return super.nonces(owner);
   }
 

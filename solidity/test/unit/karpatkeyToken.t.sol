@@ -8,28 +8,28 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 import 'forge-std/console.sol';
 
-import {IZTT} from 'interfaces/IZTT.sol';
-import {ZTestToken} from 'solidity/contracts/ZTestToken.sol';
+import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
+import {karpatkeyToken} from 'solidity/contracts/karpatkeyToken.sol';
 
 abstract contract Base is Test {
   address internal _owner = makeAddr('owner');
-  ZTestToken internal _ztoken;
+  karpatkeyToken internal _kpktoken;
 
   function setUp() public virtual {
-    _ztoken = new ZTestToken(_owner);
+    _kpktoken = new karpatkeyToken(_owner);
   }
 }
 
 contract TestConstructor is Base {
   function test_Constructor() public {
-    assertEq(_ztoken.owner(), _owner);
-    assertEq(_ztoken.transferAllowance(_owner), type(uint256).max);
-    assertEq(_ztoken.totalSupply(), 1_000_000 * 10 ** _ztoken.decimals());
-    assertEq(_ztoken.balanceOf(_owner), 1_000_000 * 10 ** _ztoken.decimals());
-    assertEq(_ztoken.name(), 'ZTest Token');
-    assertEq(_ztoken.symbol(), 'ZTT');
-    assertEq(_ztoken.decimals(), 18);
-    assertEq(_ztoken.paused(), true);
+    assertEq(_kpktoken.owner(), _owner);
+    assertEq(_kpktoken.transferAllowance(_owner), type(uint256).max);
+    assertEq(_kpktoken.totalSupply(), 1_000_000 * 10 ** _kpktoken.decimals());
+    assertEq(_kpktoken.balanceOf(_owner), 1_000_000 * 10 ** _kpktoken.decimals());
+    assertEq(_kpktoken.name(), 'karpatkey Token');
+    assertEq(_kpktoken.symbol(), 'KPK');
+    assertEq(_kpktoken.decimals(), 18);
+    assertEq(_kpktoken.paused(), true);
   }
 }
 
@@ -38,22 +38,22 @@ contract TestPause is Base {
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.unpause();
+    _kpktoken.unpause();
   }
 
   function test_Pause() public {
     vm.prank(_owner);
-    _ztoken.unpause();
-    assertEq(_ztoken.paused(), false);
+    _kpktoken.unpause();
+    assertEq(_kpktoken.paused(), false);
   }
 
   function test_PauseExpectedRevertOwner() public {
     vm.prank(_owner);
-    _ztoken.unpause();
+    _kpktoken.unpause();
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.pause();
+    _kpktoken.pause();
   }
 }
 
@@ -61,10 +61,10 @@ contract TestTransferOwnership is Base {
   function test_transferOwnership() public {
     address _newOwner = makeAddr('newOwner');
     vm.prank(_owner);
-    _ztoken.transferOwnership(_newOwner);
-    assertEq(_ztoken.owner(), _newOwner);
-    assertEq(_ztoken.transferAllowance(_newOwner), type(uint256).max);
-    assertEq(_ztoken.transferAllowance(_owner), 0);
+    _kpktoken.transferOwnership(_newOwner);
+    assertEq(_kpktoken.owner(), _newOwner);
+    assertEq(_kpktoken.transferAllowance(_newOwner), type(uint256).max);
+    assertEq(_kpktoken.transferAllowance(_owner), 0);
   }
 
   function test_transferOwnershipExpectedRevertOwner() public {
@@ -72,7 +72,7 @@ contract TestTransferOwnership is Base {
     address _newOwner = makeAddr('newOwner');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.transferOwnership(_newOwner);
+    _kpktoken.transferOwnership(_newOwner);
   }
 }
 
@@ -81,11 +81,11 @@ contract TestBurn is Base {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    _ztoken.mint(_holder, _amount);
-    uint256 _initialTotalSupply = _ztoken.totalSupply();
-    _ztoken.burn(_holder, _amount - 1);
-    assertEq(_ztoken.balanceOf(_holder), 1);
-    assertEq(_ztoken.totalSupply(), _initialTotalSupply - _amount + 1);
+    _kpktoken.mint(_holder, _amount);
+    uint256 _initialTotalSupply = _kpktoken.totalSupply();
+    _kpktoken.burn(_holder, _amount - 1);
+    assertEq(_kpktoken.balanceOf(_holder), 1);
+    assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
   function test_BurnExpectedRevertOwner() public {
@@ -93,21 +93,21 @@ contract TestBurn is Base {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.prank(_owner);
-    _ztoken.mint(_holder, _amount);
+    _kpktoken.mint(_holder, _amount);
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.burn(_holder, _amount - 1);
+    _kpktoken.burn(_holder, _amount - 1);
   }
 
   function test_BurnExpectedRevert() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    _ztoken.mint(_holder, _amount);
+    _kpktoken.mint(_holder, _amount);
     vm.expectRevert(
       abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amount, _amount + 1)
     );
-    _ztoken.burn(_holder, _amount + 1);
+    _kpktoken.burn(_holder, _amount + 1);
   }
 }
 
@@ -115,11 +115,11 @@ contract TestMint is Base {
   function test_Mint() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
-    uint256 _initialTotalSupply = _ztoken.totalSupply();
+    uint256 _initialTotalSupply = _kpktoken.totalSupply();
     vm.prank(_owner);
-    _ztoken.mint(_holder, _amount);
-    assertEq(_ztoken.balanceOf(_holder), _amount);
-    assertEq(_ztoken.totalSupply(), _initialTotalSupply + _amount);
+    _kpktoken.mint(_holder, _amount);
+    assertEq(_kpktoken.balanceOf(_holder), _amount);
+    assertEq(_kpktoken.totalSupply(), _initialTotalSupply + _amount);
   }
 
   function test_MintExpectedRevertOwner() public {
@@ -128,7 +128,7 @@ contract TestMint is Base {
     uint256 _amount = 100;
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.mint(_holder, _amount);
+    _kpktoken.mint(_holder, _amount);
   }
 }
 
@@ -137,11 +137,11 @@ contract TestTransferAllowance is Base {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    assertEq(_ztoken.transferAllowance(_holder), 0);
-    //vm.expectEmit(address(_ztoken));
-    //emit IZTT.TransferApproval(_holder, amount);
-    _ztoken.approveTransfer(_holder, _amount);
-    assertEq(_ztoken.transferAllowance(_holder), _amount);
+    assertEq(_kpktoken.transferAllowance(_holder), 0);
+    //vm.expectEmit(address(_kpktoken));
+    //emit IkarpatkeyToken.TransferApproval(_holder, amount);
+    _kpktoken.approveTransfer(_holder, _amount);
+    assertEq(_kpktoken.transferAllowance(_holder), _amount);
   }
 
   function test_transferAllowanceExpectedRevertOwner() public {
@@ -149,16 +149,16 @@ contract TestTransferAllowance is Base {
     uint256 _amount = 100;
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.approveTransfer(_randomAddress, _amount);
+    _kpktoken.approveTransfer(_randomAddress, _amount);
   }
 
   function test_transferAllowanceWhenPausedExpectedRevert() public {
     uint256 _amount = 100;
     address _holder = makeAddr('holder');
     vm.startPrank(_owner);
-    _ztoken.unpause();
-    vm.expectRevert(abi.encodeWithSelector(IZTT.TransferApprovalWhenUnpaused.selector));
-    _ztoken.approveTransfer(_holder, _amount);
+    _kpktoken.unpause();
+    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferApprovalWhenUnpaused.selector));
+    _kpktoken.approveTransfer(_holder, _amount);
   }
 }
 
@@ -167,10 +167,10 @@ contract TestFirstTransfer is Base {
     address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    bool result = _ztoken.transfer(_recipient, _amount);
+    bool result = _kpktoken.transfer(_recipient, _amount);
     assertEq(result, true);
-    assertEq(_ztoken.balanceOf(_recipient), _amount);
-    assertEq(_ztoken.balanceOf(_owner), _ztoken.totalSupply() - _amount);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount);
+    assertEq(_kpktoken.balanceOf(_owner), _kpktoken.totalSupply() - _amount);
   }
 }
 
@@ -181,7 +181,7 @@ abstract contract BaseTransfer is Base {
   function setUp() public virtual override(Base) {
     super.setUp();
     vm.startPrank(_owner);
-    _ztoken.transfer(_holder, _amount);
+    _kpktoken.transfer(_holder, _amount);
   }
 }
 
@@ -189,47 +189,47 @@ contract TestTransfers is BaseTransfer {
   function test_transferExpectedRevert() public {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_holder);
-    vm.expectRevert(abi.encodeWithSelector(IZTT.InsufficientTransferAllowance.selector, _holder, 0, _amount));
-    _ztoken.transfer(_recipient, _amount);
+    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _holder, 0, _amount));
+    _kpktoken.transfer(_recipient, _amount);
   }
 
   function test_transfer() public {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
-    _ztoken.approveTransfer(_holder, _amount + 1);
+    _kpktoken.approveTransfer(_holder, _amount + 1);
     vm.startPrank(_holder);
-    _ztoken.transfer(_recipient, _amount);
-    assertEq(_ztoken.balanceOf(_recipient), _amount);
-    assertEq(_ztoken.balanceOf(_holder), 0);
-    assertEq(_ztoken.transferAllowance(_holder), 1);
+    _kpktoken.transfer(_recipient, _amount);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount);
+    assertEq(_kpktoken.balanceOf(_holder), 0);
+    assertEq(_kpktoken.transferAllowance(_holder), 1);
   }
 
   function test_transferInfiniteTransferAllowance() public {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
-    _ztoken.approveTransfer(_holder, type(uint256).max);
+    _kpktoken.approveTransfer(_holder, type(uint256).max);
     vm.startPrank(_holder);
-    _ztoken.transfer(_recipient, _amount);
-    assertEq(_ztoken.balanceOf(_recipient), _amount);
-    assertEq(_ztoken.balanceOf(_holder), 0);
-    assertEq(_ztoken.transferAllowance(_holder), type(uint256).max);
+    _kpktoken.transfer(_recipient, _amount);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount);
+    assertEq(_kpktoken.balanceOf(_holder), 0);
+    assertEq(_kpktoken.transferAllowance(_holder), type(uint256).max);
   }
 
   function test_transferToContractExpectedRevert() public {
     vm.startPrank(_owner);
-    _ztoken.approveTransfer(_holder, _amount + 1);
+    _kpktoken.approveTransfer(_holder, _amount + 1);
     vm.startPrank(_holder);
-    vm.expectRevert(abi.encodeWithSelector(IZTT.TransferToTokenContract.selector));
-    _ztoken.transfer(address(_ztoken), _amount);
+    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferToTokenContract.selector));
+    _kpktoken.transfer(address(_kpktoken), _amount);
   }
 
   function test_transferByOwner() public {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
-    bool _result = _ztoken.transferByOwner(_holder, _recipient, _amount - 1);
+    bool _result = _kpktoken.transferByOwner(_holder, _recipient, _amount - 1);
     assertEq(_result, true);
-    assertEq(_ztoken.balanceOf(_recipient), _amount - 1);
-    assertEq(_ztoken.balanceOf(_holder), 1);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount - 1);
+    assertEq(_kpktoken.balanceOf(_holder), 1);
   }
 
   function test_transferByOwnerExpectedRevertOwner() public {
@@ -237,7 +237,7 @@ contract TestTransfers is BaseTransfer {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.transferByOwner(_holder, _recipient, _amount - 1);
+    _kpktoken.transferByOwner(_holder, _recipient, _amount - 1);
   }
 }
 
@@ -251,7 +251,7 @@ abstract contract BaseRescueToken is Base {
     vm.createSelectFork(vm.rpcUrl('mainnet'), _FORK_BLOCK);
     super.setUp();
     vm.prank(_daiWhale);
-    _dai.transfer(address(_ztoken), amount);
+    _dai.transfer(address(_kpktoken), amount);
   }
 }
 
@@ -259,22 +259,24 @@ contract TestRescueToken is BaseRescueToken {
   function test_rescueToken() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
-    _ztoken.rescueToken(_dai, _beneficiary, amount - 1);
+    _kpktoken.rescueToken(_dai, _beneficiary, amount - 1);
     assertEq(_dai.balanceOf(_beneficiary), amount - 1);
-    assertEq(_dai.balanceOf(address(_ztoken)), 1);
+    assertEq(_dai.balanceOf(address(_kpktoken)), 1);
   }
 
   function test_rescueTokenExpectedRevert() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
-    vm.expectRevert(abi.encodeWithSelector(IZTT.InsufficientBalanceToRescue.selector, _dai, amount + 1, amount));
-    _ztoken.rescueToken(_dai, _beneficiary, amount + 1);
+    vm.expectRevert(
+      abi.encodeWithSelector(IkarpatkeyToken.InsufficientBalanceToRescue.selector, _dai, amount + 1, amount)
+    );
+    _kpktoken.rescueToken(_dai, _beneficiary, amount + 1);
   }
 
   function test_rescueTokenExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _ztoken.rescueToken(_dai, _randomAddress, amount);
+    _kpktoken.rescueToken(_dai, _randomAddress, amount);
   }
 }
