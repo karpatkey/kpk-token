@@ -31,8 +31,8 @@ To make the token transferable the owner of the token has to call the `unpause` 
 
 ### Supply
 
-The total initial supply of 1 million karpatkey token is minted to the token owner. These tokens then can be further by the token owner (e.g. according to [GIP-2X]()). The token contract does not support any inflation or minting logic. It is also not possible to burn the token. Therefore the total supply is fixed at 1 million karpatkey tokens.
+The total initial supply of 1 million karpatkey token is minted to the token contract owner. These tokens then can be further by the token owner (e.g. according to [GIP-2X]()).
 
 ### ERC20 token recovery
 
-To recover ERC20 tokens that have been sent to the token contract it is possible to use [`rescueToken` of the `TokenRescuer` contract](../contracts/TokenRescuer.sol) to transfer tokens to another address.
+To recover ERC20 tokens that have been sent to the token contract it is possible to use the `rescueToken` method to transfer tokens to another address.
