@@ -24,7 +24,7 @@ abstract contract Base is Test {
   }
 }
 
-contract TestConstructor is Base {
+contract UnitTestConstructor is Base {
   function test_Constructor() public view {
     assertEq(_kpktoken.owner(), _owner);
     assertEq(_kpktoken.transferAllowance(_owner), type(uint256).max);
@@ -37,7 +37,7 @@ contract TestConstructor is Base {
   }
 }
 
-contract TestPause is Base {
+contract UnitTestPause is Base {
   function test_UnpauseExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
@@ -61,7 +61,7 @@ contract TestPause is Base {
   }
 }
 
-contract TestTransferOwnership is Base {
+contract UnitTestTransferOwnership is Base {
   function test_transferOwnership() public {
     address _newOwner = makeAddr('newOwner');
     vm.prank(_owner);
@@ -80,7 +80,7 @@ contract TestTransferOwnership is Base {
   }
 }
 
-contract TestBurn is Base {
+contract UnitTestBurn is Base {
   function test_Burn() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
@@ -115,7 +115,7 @@ contract TestBurn is Base {
   }
 }
 
-contract TestMint is Base {
+contract UnitTestMint is Base {
   function test_Mint() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
@@ -136,7 +136,7 @@ contract TestMint is Base {
   }
 }
 
-contract TestTransferAllowance is Base {
+contract UnitTestTransferAllowance is Base {
   function test_transferAllowance() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
@@ -167,7 +167,7 @@ contract TestTransferAllowance is Base {
   }
 }
 
-contract TestFirstTransfer is Base {
+contract UnitTestFirstTransfer is Base {
   function test_firstTransfer() public {
     address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
@@ -190,7 +190,7 @@ abstract contract BaseTransfer is Base {
   }
 }
 
-contract TestTransfers is BaseTransfer {
+contract UnitTestTransfers is BaseTransfer {
   function test_transferExpectedRevert() public {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_holder);
@@ -260,7 +260,7 @@ abstract contract BaseRescueToken is Base {
   }
 }
 
-contract TestRescueToken is BaseRescueToken {
+contract UnitTestRescueToken is BaseRescueToken {
   function test_rescueToken() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
