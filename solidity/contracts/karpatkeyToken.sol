@@ -2,22 +2,36 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.20;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol';
 
-import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
-import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol';
-import '@openzeppelin/contracts/utils/Pausable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
 import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 
-contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permit, ERC20Votes {
+contract karpatkeyToken is
+  Initializable,
+  IkarpatkeyToken,
+  ERC20Upgradeable,
+  PausableUpgradeable,
+  OwnableUpgradeable,
+  ERC20PermitUpgradeable,
+  ERC20VotesUpgradeable
+{
   mapping(address account => uint256) private _transferAllowances;
 
-  constructor(address initialOwner)
-    ERC20('karpatkey Token', 'KPK')
-    Ownable(initialOwner)
-    ERC20Permit('karpatkey Token')
-  {
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() {
+    _disableInitializers();
+  }
+
+  function initialize(address initialOwner) public initializer {
+    __ERC20_init('karpatkey Token', 'KPK');
+    __ERC20Permit_init('karpatkey Token');
+    __ERC20Votes_init();
+    __Ownable_init(initialOwner);
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
     _approveTransfer(initialOwner, type(uint256).max); // For the transferFrom method where the 'from' address is the initialOnwer
@@ -76,7 +90,12 @@ contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permi
     return true;
   }
 
-  function nonces(address owner) public view override(IkarpatkeyToken, ERC20Permit, Nonces) returns (uint256) {
+  function nonces(address owner)
+    public
+    view
+    override(IkarpatkeyToken, ERC20PermitUpgradeable, NoncesUpgradeable)
+    returns (uint256)
+  {
     return super.nonces(owner);
   }
 
@@ -88,7 +107,7 @@ contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permi
     emit TransferApproval(owner, value);
   }
 
-  function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Votes) {
+  function _update(address from, address to, uint256 value) internal override(ERC20Upgradeable, ERC20VotesUpgradeable) {
     if (to == address(this)) {
       revert TransferToTokenContract();
     }
@@ -125,7 +144,7 @@ contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permi
     token.transfer(beneficiary, value);
   }
 
-  function _transferOwnership(address newOwner) internal virtual override(Ownable) {
+  function _transferOwnership(address newOwner) internal virtual override(OwnableUpgradeable) {
     if (owner() != address(0)) {
       _approveTransfer(owner(), 0);
     }

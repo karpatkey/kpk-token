@@ -9,14 +9,18 @@ import {Test} from 'forge-std/Test.sol';
 import 'forge-std/console.sol';
 
 import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
+import {Upgrades} from 'openzeppelin-foundry-upgrades/Upgrades.sol';
 import {karpatkeyToken} from 'solidity/contracts/karpatkeyToken.sol';
 
 abstract contract Base is Test {
   address internal _owner = makeAddr('owner');
   karpatkeyToken internal _kpktoken;
+  address internal _proxy;
 
   function setUp() public virtual {
-    _kpktoken = new karpatkeyToken(_owner);
+    _proxy =
+      Upgrades.deployTransparentProxy('karpatkeyToken.sol', _owner, abi.encodeCall(karpatkeyToken.initialize, _owner));
+    _kpktoken = karpatkeyToken(_proxy);
   }
 }
 
