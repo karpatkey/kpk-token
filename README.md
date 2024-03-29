@@ -1,142 +1,38 @@
-<img src="https://raw.githubusercontent.com/defi-wonderland/brand/v1.0.0/external/solidity-foundry-boilerplate-banner.png" alt="wonderland banner" align="center" />
-<br />
+# karpatkey Token
 
-<div align="center"><strong>Start your next Solidity project with Foundry in seconds</strong></div>
-<div align="center">A highly scalable foundation focused on DX and best practices</div>
+## Details
 
-<br />
+- Name: `karpatkey Token`
+- Symbol: `KPK`
+- Decimals: `18`
+- Total Supply: `1_000_000`
 
-## Features
+## Purpose
 
-<dl>
-  <dt>Sample contracts</dt>
-  <dd>Basic Greeter contract with an external interface.</dd>
+Following the tradition of our sister projects CowDAO and SafeDAO and their spinoffs in [GIP-13]() and [GIP-29](https://forum.gnosis.io/t/gip-29-spin-off-safedao-and-launch-safe-token/3476), karpatkey will launch their DAO spinoff from the GnosisDAO.
+If the Gnosis Improvement Proposal GIP-9x: karpatkey spinoff and KPK launch is approved, the GnosisDAO will deploy KPK as an ERC20 token.
 
-  <dt>Foundry setup</dt>
-  <dd>Foundry configuration with multiple custom profiles and remappings.</dd>
+## Utility
 
-  <dt>Deployment scripts</dt>
-  <dd>Sample scripts to deploy contracts on both mainnet and testnet.</dd>
+KPK is created to align the parties contributing to delivering karpatkey's vision. KPK will be a governance token used to define treasury parameters, budgets, OTC deals, buybacks and M&A deals.
+The full supply will be 1 million KPK and non-transferable for the foreseeable future to replicate a private organisation.
 
-  <dt>Sample Integraion & Unit tests</dt>
-  <dd>Example tests showcasing mocking, assertions and configuration for mainnet forking. As well it includes everything needed in order to check code coverage.</dd>
+## Specifications
 
-  <dt>Linter</dt>
-  <dd>Simple and fast solidity linting thanks to forge fmt</a>.</dd>
+### Ownership
 
-  <dt>Github workflows CI</dt>
-  <dd>Run all tests and see the coverage as you push your changes.</dd>
-  <dd>Export your Solidity interfaces and contracts as packages, and publish them to NPM.</dd>
-</dl>
+The karpatkey token is ownable and the initial token supply will be minted to the specified owner. Ownership can be transferred and revoked at any point.
 
-## Setup
+### Transferability
 
-1. Install Foundry by following the instructions from [their repository](https://github.com/foundry-rs/foundry#installation).
-2. Copy the `.env.example` file to `.env` and fill in the variables.
-3. Install the dependencies by running: `yarn install`. In case there is an error with the commands, run `foundryup` and try them again.
+The karpatkey token is initially not transferrable. The only exception to this is the owner of the token contract.
 
-## Build
+To make the token transferable the owner of the token has to call the `unpause` method of the token contract. Once the token contract is unpaused (and therefore the token is transferable).
 
-The default way to build the code is suboptimal but fast, you can run it via:
+### Supply
 
-```bash
-yarn build
-```
+The total initial supply of 1 million karpatkey token is minted to the token contract owner. These tokens then can be further by the token owner (e.g. according to [GIP-2X]()).
 
-In order to build a more optimized code ([via IR](https://docs.soliditylang.org/en/v0.8.15/ir-breaking-changes.html#solidity-ir-based-codegen-changes)), run:
+### ERC20 token recovery
 
-```bash
-yarn build:optimized
-```
-
-## Running tests
-
-Unit tests should be isolated from any externalities, while Integration usually run in a fork of the blockchain. In this boilerplate you will find example of both.
-
-In order to run both unit and integration tests, run:
-
-```bash
-yarn test
-```
-
-In order to just run unit tests, run:
-
-```bash
-yarn test:unit
-```
-
-In order to run unit tests and run way more fuzzing than usual (5x), run:
-
-```bash
-yarn test:unit:deep
-```
-
-In order to just run integration tests, run:
-
-```bash
-yarn test:integration
-```
-
-In order to check your current code coverage, run:
-
-```bash
-yarn coverage
-```
-
-<br>
-
-## Deploy & verify
-
-### Setup
-
-Configure the `.env` variables.
-
-### Goerli
-
-```bash
-yarn deploy:goerli
-```
-
-### Mainnet
-
-```bash
-yarn deploy:mainnet
-```
-
-The deployments are stored in ./broadcast
-
-See the [Foundry Book for available options](https://book.getfoundry.sh/reference/forge/forge-create.html).
-
-## Export And Publish
-
-Export TypeScript interfaces from Solidity contracts and interfaces providing compatibility with TypeChain. Publish the exported packages to NPM.
-
-To enable this feature, make sure you've set the `NPM_TOKEN` on your org's secrets. Then set the job's conditional to `true`:
-
-```yaml
-jobs:
-  export:
-    name: Generate Interfaces And Contracts
-    # Remove the following line if you wish to export your Solidity contracts and interfaces and publish them to NPM
-    if: true
-    ...
-```
-
-Also, remember to update the `package_name` param to your package name:
-
-```yaml
-- name: Export Solidity - ${{ matrix.export_type }}
-  uses: defi-wonderland/solidity-exporter-action@1dbf5371c260add4a354e7a8d3467e5d3b9580b8
-  with:
-    # Update package_name with your package name
-    package_name: "my-cool-project"
-    ...
-
-
-- name: Publish to NPM - ${{ matrix.export_type }}
-  # Update `my-cool-project` with your package name
-  run: cd export/my-cool-project-${{ matrix.export_type }} && npm publish --access public
-  ...
-```
-
-You can take a look at our [solidity-exporter-action](https://github.com/defi-wonderland/solidity-exporter-action) repository for more information and usage examples.
+To recover ERC20 tokens that have been sent to the token contract it is possible to use the `rescueToken` method to transfer tokens to another address.
