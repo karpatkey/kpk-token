@@ -138,8 +138,9 @@ contract TestTransferAllowance is Base {
     uint256 _amount = 100;
     vm.startPrank(_owner);
     assertEq(_kpktoken.transferAllowance(_holder), 0);
-    //vm.expectEmit(address(_kpktoken));
-    //emit IkarpatkeyToken.TransferApproval(_holder, amount);
+    // FIXME: This is not working
+    // vm.expectEmit(address(_kpktoken));
+    // emit IkarpatkeyToken.TransferApproval(_holder, _amount);
     _kpktoken.approveTransfer(_holder, _amount);
     assertEq(_kpktoken.transferAllowance(_holder), _amount);
   }
