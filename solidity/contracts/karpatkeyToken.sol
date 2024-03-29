@@ -44,10 +44,12 @@ contract karpatkeyToken is IkarpatkeyToken, ERC20, Pausable, Ownable, ERC20Permi
     return true;
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function transferAllowance(address owner) public view virtual returns (uint256) {
     return _transferAllowances[owner];
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function approveTransfer(address owner, uint256 value) public virtual onlyOwner {
     if (!paused()) {
       revert TransferApprovalWhenUnpaused();
