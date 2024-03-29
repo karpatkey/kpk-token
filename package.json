@@ -23,9 +23,9 @@
     "lint:sol-logic": "solhint -c .solhint.json 'solidity/contracts/**/*.sol' 'solidity/interfaces/**/*.sol'",
     "lint:sol-tests": "solhint 'solidity/test/**/*.sol'",
     "prepare": "husky install",
-    "test": "forge test -vvv",
-    "test:integration": "forge test --match-contract Integration -vvv",
-    "test:unit": "forge test --match-contract Unit -vvv",
+    "test": "forge clean && forge test -vvv",
+    "test:integration": "forge clean && forge test --match-contract Integration -vvv",
+    "test:unit": "forge clean && forge test --match-contract Unit -vvv",
     "test:unit:deep": "FOUNDRY_FUZZ_RUNS=5000 yarn test:unit"
   },
   "lint-staged": {
@@ -40,7 +40,7 @@
     "@commitlint/cli": "17.0.3",
     "@commitlint/config-conventional": "17.0.3",
     "ds-test": "github:dapphub/ds-test#e282159",
-    "forge-std": "github:foundry-rs/forge-std#v1.7.3",
+    "forge-std": "github:foundry-rs/forge-std#v1.8.0",
     "husky": ">=8",
     "lint-staged": ">=10",
     "solhint": "3.6.2",

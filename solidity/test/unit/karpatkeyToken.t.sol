@@ -25,7 +25,7 @@ abstract contract Base is Test {
 }
 
 contract TestConstructor is Base {
-  function test_Constructor() public {
+  function test_Constructor() public view {
     assertEq(_kpktoken.owner(), _owner);
     assertEq(_kpktoken.transferAllowance(_owner), type(uint256).max);
     assertEq(_kpktoken.totalSupply(), 1_000_000 * 10 ** _kpktoken.decimals());
