@@ -246,6 +246,36 @@ contract UnitTestTransfers is BaseTransfer {
   }
 }
 
+contract UnitTestTransferFrom is BaseTransfer {
+  function test_transferFrom() public {
+    address _mover = makeAddr('mover');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_holder);
+    _kpktoken.approve(_mover, _amount);
+    vm.startPrank(_owner);
+    _kpktoken.approveTransfer(_holder, _amount);
+    vm.startPrank(_mover);
+    _kpktoken.transferFrom(_holder, _recipient, _amount - 1);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount - 1);
+    assertEq(_kpktoken.balanceOf(_holder), 1);
+    assertEq(_kpktoken.transferAllowance(_holder), 1);
+  }
+
+  function test_transferFromExpectedRevert() public {
+    address _mover = makeAddr('mover');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_holder);
+    _kpktoken.approve(_mover, _amount + 1);
+    vm.startPrank(_owner);
+    _kpktoken.approveTransfer(_holder, _amount);
+    vm.startPrank(_mover);
+    vm.expectRevert(
+      abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _holder, _amount, _amount + 1)
+    );
+    _kpktoken.transferFrom(_holder, _recipient, _amount + 1);
+  }
+}
+
 abstract contract BaseRescueToken is Base {
   uint256 internal constant _FORK_BLOCK = 19_534_932;
   address internal _daiWhale = 0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016;
