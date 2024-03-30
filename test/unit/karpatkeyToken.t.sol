@@ -8,9 +8,9 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 import 'forge-std/console.sol';
 
+import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 import {Upgrades} from 'openzeppelin-foundry-upgrades/Upgrades.sol';
-import {karpatkeyToken} from 'solidity/contracts/karpatkeyToken.sol';
 
 abstract contract Base is Test {
   address internal _owner = makeAddr('owner');

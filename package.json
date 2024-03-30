@@ -1,27 +1,25 @@
 {
-  "name": "solidity-foundry-boilerplate",
+  "name": "kpk-token",
   "version": "1.0.0",
   "private": true,
-  "description": "Production ready Solidity boilerplate with Foundry",
-  "homepage": "https://github.com/defi-wonderland/solidity-foundry-boilerplate#readme",
+  "description": "karpatkey governance token",
+  "homepage": "https://github.com/karpatkey/kpk-token#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/defi-wonderland/solidity-foundry-boilerplate.git"
+    "url": "git+https://github.com/karpatkey/kpk-token.git"
   },
   "license": "MIT",
-  "author": "Wonderland",
+  "author": "karpatkey",
   "scripts": {
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "coverage": "forge coverage --match-contract Unit",
-    "deploy:mainnet": "bash -c 'source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC --broadcast --private-key $MAINNET_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
-    "deploy:sepolia": "bash -c 'source .env && forge script DeploySepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "deploy:timelock:sepolia": "bash -c 'source .env && forge script DeployTimelockSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
-    "deploy:token:sepolia": "bash -c 'source .env && forge script DeployTokenSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
+    "deploy:token:sepolia": "bash -c 'source .env && forge clean && forge script script/Deploy.sol DeployTokenSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "lint:check": "yarn lint:sol-tests && yarn lint:sol-logic && forge fmt --check",
     "lint:fix": "sort-package-json && forge fmt && yarn lint:sol-tests --fix && yarn lint:sol-logic --fix",
-    "lint:sol-logic": "solhint -c .solhint.json 'solidity/contracts/**/*.sol' 'solidity/interfaces/**/*.sol'",
-    "lint:sol-tests": "solhint 'solidity/test/**/*.sol'",
+    "lint:sol-logic": "solhint -c .solhint.json 'src/**/*.sol' 'script/**/*.sol'",
+    "lint:sol-tests": "solhint 'test/**/*.sol'",
     "prepare": "husky install",
     "test": "forge clean && forge test -vvv",
     "test:integration": "forge clean && forge test --match-contract Integration -vvv",
@@ -30,7 +28,8 @@
   },
   "lint-staged": {
     "*.{js,css,md,ts,sol}": "forge fmt",
-    "*.sol": "solhint --fix 'solidity/**/*.sol",
+    "(src|script)/**/*.sol": "yarn lint:sol-logic",
+    "test/**/*.sol": "yarn lint:sol-tests",
     "package.json": "sort-package-json"
   },
   "dependencies": {
