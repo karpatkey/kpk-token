@@ -2,14 +2,18 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.20;
 
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol';
+import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import {ERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
+import {
+  ERC20PermitUpgradeable,
+  NoncesUpgradeable
+} from '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol';
+import {ERC20VotesUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol';
 
-import '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
-import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
+import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
+import {IERC20, IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 
 contract karpatkeyToken is
   Initializable,
@@ -37,22 +41,17 @@ contract karpatkeyToken is
     _approveTransfer(initialOwner, type(uint256).max); // For the transferFrom method where the 'from' address is the initialOnwer
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function pause() public onlyOwner {
     _pause();
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function unpause() public onlyOwner {
     _unpause();
   }
 
-  /**
-   * @dev See {IERC20-transfer}.
-   *
-   * Requirements:
-   *
-   * - `to` cannot be the zero address.
-   * - the caller must have a balance of at least `value`.
-   */
+  /// @inheritdoc IkarpatkeyToken
   function transferByOwner(address from, address to, uint256 value) public virtual onlyOwner returns (bool) {
     _transfer(from, to, value);
     return true;
@@ -76,20 +75,18 @@ contract karpatkeyToken is
     _mint(to, amount);
   }
 
-  /**
-   * @dev Destroys a `value` amount of tokens from the token holder 'owner'.
-   *
-   * See {ERC20-_burn}.
-   */
+  /// @inheritdoc IkarpatkeyToken
   function burn(address owner, uint256 value) public virtual onlyOwner {
     _burn(owner, value);
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner returns (bool) {
     _rescueToken(token, beneficiary, value);
     return true;
   }
 
+  /// @inheritdoc IkarpatkeyToken
   function nonces(address owner)
     public
     view
