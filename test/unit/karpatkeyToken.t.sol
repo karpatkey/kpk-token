@@ -6,7 +6,6 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
-import 'forge-std/console.sol';
 
 import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
@@ -27,7 +26,6 @@ abstract contract Base is Test {
 contract UnitTestConstructor is Base {
   function test_Constructor() public view {
     assertEq(_kpktoken.owner(), _owner);
-    assertEq(_kpktoken.transferAllowance(_owner), type(uint256).max);
     assertEq(_kpktoken.totalSupply(), 1_000_000 * 10 ** _kpktoken.decimals());
     assertEq(_kpktoken.balanceOf(_owner), 1_000_000 * 10 ** _kpktoken.decimals());
     assertEq(_kpktoken.name(), 'karpatkey Token');
@@ -67,8 +65,6 @@ contract UnitTestTransferOwnership is Base {
     vm.prank(_owner);
     _kpktoken.transferOwnership(_newOwner);
     assertEq(_kpktoken.owner(), _newOwner);
-    assertEq(_kpktoken.transferAllowance(_newOwner), type(uint256).max);
-    assertEq(_kpktoken.transferAllowance(_owner), 0);
   }
 
   function test_transferOwnershipExpectedRevertOwner() public {
@@ -137,14 +133,16 @@ contract UnitTestMint is Base {
 }
 
 contract UnitTestTransferAllowance is Base {
+  event TransferApproval(address indexed owner, uint256 value);
+
   function test_transferAllowance() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.startPrank(_owner);
     assertEq(_kpktoken.transferAllowance(_holder), 0);
     // FIXME: This is not working
-    // vm.expectEmit(address(_kpktoken));
-    // emit IkarpatkeyToken.TransferApproval(_holder, _amount);
+    vm.expectEmit(address(_kpktoken));
+    emit TransferApproval(_holder, _amount);
     _kpktoken.approveTransfer(_holder, _amount);
     assertEq(_kpktoken.transferAllowance(_holder), _amount);
   }
@@ -273,6 +271,28 @@ contract UnitTestTransferFrom is BaseTransfer {
       abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _holder, _amount, _amount + 1)
     );
     _kpktoken.transferFrom(_holder, _recipient, _amount + 1);
+  }
+
+  function test_transferFromOwner() public {
+    address _mover = makeAddr('mover');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _kpktoken.approve(_mover, _amount);
+    vm.startPrank(_mover);
+    _kpktoken.transferFrom(_owner, _recipient, _amount);
+    assertEq(_kpktoken.balanceOf(_recipient), _amount);
+  }
+
+  function test_transferFromOwnerExpectedRevert() public {
+    address _mover = makeAddr('mover');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _kpktoken.approve(_mover, _amount);
+    vm.startPrank(_mover);
+    vm.expectRevert(
+      abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, _mover, _amount, _amount + 1)
+    );
+    _kpktoken.transferFrom(_owner, _recipient, _amount + 1);
   }
 }
 

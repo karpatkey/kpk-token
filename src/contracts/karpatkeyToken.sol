@@ -38,7 +38,6 @@ contract karpatkeyToken is
     __Ownable_init(initialOwner);
     _mint(initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
-    _approveTransfer(initialOwner, type(uint256).max); // For the transferFrom method where the 'from' address is the initialOnwer
   }
 
   /// @inheritdoc IkarpatkeyToken
@@ -86,13 +85,7 @@ contract karpatkeyToken is
     return true;
   }
 
-  /// @inheritdoc IkarpatkeyToken
-  function nonces(address owner)
-    public
-    view
-    override(IkarpatkeyToken, ERC20PermitUpgradeable, NoncesUpgradeable)
-    returns (uint256)
-  {
+  function nonces(address owner) public view override(ERC20PermitUpgradeable, NoncesUpgradeable) returns (uint256) {
     return super.nonces(owner);
   }
 
@@ -108,7 +101,8 @@ contract karpatkeyToken is
     if (to == address(this)) {
       revert TransferToTokenContract();
     }
-    if (paused() && owner() != _msgSender()) {
+    // 'from != owner()' is included to avoid involving the transfer allowance when tokens are transferred from the owner via {transferFrom}
+    if (paused() && _msgSender() != owner() && from != owner()) {
       _spendTransferAllowance(from, value);
     }
     super._update(from, to, value);
@@ -117,8 +111,8 @@ contract karpatkeyToken is
   /**
    * @dev Updates `owner` s transfer allowance based on spent `value`.
    *
-   * Does not update the transferAllowance value in case of infinite allowance.
-   * Revert if not enough transfer allowance is available.
+   * Does not update the transfer allowance value in case of infinite allowance.
+   * Reverts if not enough transfer allowance is available.
    *
    */
   function _spendTransferAllowance(address owner, uint256 value) internal virtual {
@@ -139,13 +133,5 @@ contract karpatkeyToken is
       revert InsufficientBalanceToRescue(token, value, balance);
     }
     token.transfer(beneficiary, value);
-  }
-
-  function _transferOwnership(address newOwner) internal virtual override(OwnableUpgradeable) {
-    if (owner() != address(0)) {
-      _approveTransfer(owner(), 0);
-    }
-    _approveTransfer(newOwner, type(uint256).max);
-    super._transferOwnership(newOwner);
   }
 }

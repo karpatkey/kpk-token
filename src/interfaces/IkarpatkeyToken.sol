@@ -61,10 +61,12 @@ interface IkarpatkeyToken {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice fgbgf
-   * @dev gfbfgb
-   * @param owner fgb
-   * @return sd sdsds
+   * @dev Returns the remaining number of tokens that `owner` will be
+   * allowed to transfer through {transfer}, or through having a spender
+   * account spend on behalf of `owner` through {transferFrom}. This is
+   * zero by default.
+   *
+   * This value changes when {approveTransfer}, {transfer} or {transferFrom} are called.
    */
   function transferAllowance(address owner) external view returns (uint256);
 
@@ -73,37 +75,38 @@ interface IkarpatkeyToken {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice
-   * @dev
+   * @notice Pauses token transfers.
+   * @dev Prevents transfers of tokens. Can only be called by the token contract's owner.
    */
   function pause() external;
 
   /**
-   * @notice
-   * @dev
+   * @notice Unpauses token transfers.
+   * @dev Allows transfers of tokens. Can only be called by the token contract's owner.
    */
   function unpause() external;
 
   /**
-   * @notice
-   * @dev
-   * @param from dsfdsf
-   * @param to dsfdsf
-   * @param value dsfdsf
-   * @return bool asdasd
+   * @notice Transfers tokens from one account to another.
+   * @dev Moves `value` tokens from `from` to `to`. Can only be called by the token contract's owner.
+   * @param from Address to transfer tokens from.
+   * @param to Address to transfer tokens to.
+   * @param value Amount of tokens to transfer.
+   * @return bool True if the transfer was successful, otherwise false.
    */
   function transferByOwner(address from, address to, uint256 value) external returns (bool);
 
   /**
-   * @notice
-   * @dev
-   * @param owner sdfdsfds
+   * @notice Approves an account to transfer tokens when the contract is paused.
+   * @dev Sets the transfer allowance for `owner` to `value`. Can only be called by the token contract's owner.
+   * @param owner Address that may be allowed to transfer tokens.
+   * @param value Amount of tokens the owner is allowed to transfer.
    */
   function approveTransfer(address owner, uint256 value) external;
 
   /**
-   * @notice Mints new tokens
-   * @dev Creates a `value` amount of tokens allocated to address 'to'.
+   * @notice Mints new tokens.
+   * @dev Creates a `value` amount of tokens allocated to address 'to'. Can only be called by the token contract's owner.
    *
    * See {ERC20-_mint}.
    */
@@ -117,10 +120,12 @@ interface IkarpatkeyToken {
    */
   function burn(address owner, uint256 value) external;
 
-  function rescueToken(IERC20 token, address beneficiary, uint256 value) external returns (bool);
-
   /**
-   * @dev Returns the next unused nonce for an address.
+   * @notice Transfers tokens held by token contract to a beneficiary.
+   * @dev Transfers `value` amount of `token` held by the token contract to `beneficiary`. Can only be called by the token contract's owner.
+   * @param token Address of the token to be transferred.
+   * @param beneficiary Address to receive the tokens.
+   * @param value Amount of tokens to be transferred.
    */
-  function nonces(address owner) external view returns (uint256);
+  function rescueToken(IERC20 token, address beneficiary, uint256 value) external returns (bool);
 }
