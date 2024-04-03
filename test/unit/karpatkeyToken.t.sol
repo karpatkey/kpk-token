@@ -123,36 +123,74 @@ contract UnitTestMint is Base {
   }
 }
 
+contract UnitTestTransferAllowlisting is Base {
+  function test_transferAllowlist() public {
+    address _sender = makeAddr('sender');
+    vm.startPrank(_owner);
+    assertEq(_kpktoken.transferAllowlisted(_sender), false);
+    _kpktoken.transferAllowlist(_sender);
+    assertEq(_kpktoken.transferAllowlisted(_sender), true);
+  }
+
+  function test_transferAllowlistExpectedRevertOwner() public {
+    address _randomAddress = makeAddr('randomAddress');
+    vm.startPrank(_randomAddress);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    _kpktoken.transferAllowlist(_randomAddress);
+  }
+
+  function test_transferAllowlistWhenUnpausedExpectedRevert() public {
+    address _sender = makeAddr('sender');
+    vm.startPrank(_owner);
+    _kpktoken.unpause();
+    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferAllowlistingWhenUnpaused.selector));
+    _kpktoken.transferAllowlist(_sender);
+  }
+}
+
 contract UnitTestTransferAllowance is Base {
-  event TransferApproval(address indexed owner, uint256 value);
+  event TransferApproval(address indexed sender, address indexed recipient, uint256 value);
 
   function test_transferAllowance() public {
-    address _holder = makeAddr('holder');
+    address _sender = makeAddr('sender');
+    address _recipient = makeAddr('recipient');
+
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    assertEq(_kpktoken.transferAllowance(_holder), 0);
-    // FIXME: This is not working
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), 0);
     vm.expectEmit(address(_kpktoken));
-    emit TransferApproval(_holder, _amount);
-    _kpktoken.approveTransfer(_holder, _amount);
-    assertEq(_kpktoken.transferAllowance(_holder), _amount);
+    emit TransferApproval(_sender, _recipient, _amount);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount);
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), _amount);
   }
 
   function test_transferAllowanceExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
+    address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _kpktoken.approveTransfer(_randomAddress, _amount);
+    _kpktoken.approveTransfer(_randomAddress, _recipient, _amount);
   }
 
   function test_transferAllowanceWhenPausedExpectedRevert() public {
     uint256 _amount = 100;
-    address _holder = makeAddr('holder');
+    address _sender = makeAddr('sender');
+    address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
     _kpktoken.unpause();
     vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferApprovalWhenUnpaused.selector));
-    _kpktoken.approveTransfer(_holder, _amount);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount);
+  }
+
+  function test_transferAllowanceAllowlistedExpectedRevert() public {
+    uint256 _amount = 100;
+    address _sender = makeAddr('sender');
+    address _recipient = makeAddr('recipient');
+    vm.startPrank(_owner);
+    _kpktoken.transferAllowlist(_sender);
+    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.OwnerAlreadyAllowlisted.selector, _sender));
+    _kpktoken.approveTransfer(_sender, _recipient, _amount);
   }
 }
 
@@ -169,50 +207,50 @@ contract UnitTestFirstTransfer is Base {
 }
 
 abstract contract BaseTransfer is Base {
-  address internal _holder = makeAddr('holder');
+  address internal _sender = makeAddr('sender');
+  address internal _recipient = makeAddr('recipient');
   uint256 internal _amount = 100;
 
   function setUp() public virtual override(Base) {
     super.setUp();
     vm.startPrank(_owner);
-    _kpktoken.transfer(_holder, _amount);
+    _kpktoken.transfer(_sender, _amount);
   }
 }
 
 contract UnitTestTransfers is BaseTransfer {
   function test_transferExpectedRevert() public {
-    address _recipient = makeAddr('recipient');
-    vm.startPrank(_holder);
-    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _holder, 0, _amount));
+    vm.startPrank(_sender);
+    vm.expectRevert(
+      abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
+    );
     _kpktoken.transfer(_recipient, _amount);
   }
 
   function test_transfer() public {
-    address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, _amount + 1);
-    vm.startPrank(_holder);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
+    vm.startPrank(_sender);
     _kpktoken.transfer(_recipient, _amount);
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
-    assertEq(_kpktoken.balanceOf(_holder), 0);
-    assertEq(_kpktoken.transferAllowance(_holder), 1);
+    assertEq(_kpktoken.balanceOf(_sender), 0);
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), 1);
   }
 
   function test_transferInfiniteTransferAllowance() public {
-    address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, type(uint256).max);
-    vm.startPrank(_holder);
+    _kpktoken.approveTransfer(_sender, _recipient, type(uint256).max);
+    vm.startPrank(_sender);
     _kpktoken.transfer(_recipient, _amount);
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
-    assertEq(_kpktoken.balanceOf(_holder), 0);
-    assertEq(_kpktoken.transferAllowance(_holder), type(uint256).max);
+    assertEq(_kpktoken.balanceOf(_sender), 0);
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), type(uint256).max);
   }
 
   function test_transferToContractExpectedRevert() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, _amount + 1);
-    vm.startPrank(_holder);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
+    vm.startPrank(_sender);
     vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferToTokenContract.selector));
     _kpktoken.transfer(address(_kpktoken), _amount);
   }
@@ -222,29 +260,31 @@ contract UnitTestTransferFrom is BaseTransfer {
   function test_transferFrom() public {
     address _mover = makeAddr('mover');
     address _recipient = makeAddr('recipient');
-    vm.startPrank(_holder);
+    vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, _amount);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount);
     vm.startPrank(_mover);
-    _kpktoken.transferFrom(_holder, _recipient, _amount - 1);
+    _kpktoken.transferFrom(_sender, _recipient, _amount - 1);
     assertEq(_kpktoken.balanceOf(_recipient), _amount - 1);
-    assertEq(_kpktoken.balanceOf(_holder), 1);
-    assertEq(_kpktoken.transferAllowance(_holder), 1);
+    assertEq(_kpktoken.balanceOf(_sender), 1);
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), 1);
   }
 
   function test_transferFromExpectedRevert() public {
     address _mover = makeAddr('mover');
     address _recipient = makeAddr('recipient');
-    vm.startPrank(_holder);
+    vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount + 1);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, _amount);
+    _kpktoken.approveTransfer(_sender, _recipient, _amount);
     vm.startPrank(_mover);
     vm.expectRevert(
-      abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _holder, _amount, _amount + 1)
+      abi.encodeWithSelector(
+        IkarpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, _amount, _amount + 1
+      )
     );
-    _kpktoken.transferFrom(_holder, _recipient, _amount + 1);
+    _kpktoken.transferFrom(_sender, _recipient, _amount + 1);
   }
 
   function test_transferFromOwner() public {

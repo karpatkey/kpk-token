@@ -17,7 +17,13 @@ interface IkarpatkeyToken {
    * @dev Emitted when the transferAllowance for an `owner` is set by
    * a call to {approveTransfer}. `value` is the new transfer allowance.
    */
-  event TransferApproval(address indexed owner, uint256 value);
+  event TransferApproval(address indexed sender, address indexed recipient, uint256 value);
+
+  /**
+   * @notice hhh
+   * @dev hhh
+   */
+  event TransferAllowlisting(address indexed sender);
 
   /*///////////////////////////////////////////////////////////////
                             ERRORS
@@ -28,13 +34,22 @@ interface IkarpatkeyToken {
    */
   error TransferToTokenContract();
 
+  error OwnerAlreadyAllowlisted(address sender);
+
   /**
    * @dev Indicates a failure with the caller's `transferAllowance`. Used in transfers.
    * @param owner Address that may be allowed to transfer tokens.
+   * @param recipient Address to which tokens may be transferred.
    * @param transferAllowance Amount of tokens the owner is allowed to transfer.
    * @param needed Minimum amount required to perform a transfer.
    */
-  error InsufficientTransferAllowance(address owner, uint256 transferAllowance, uint256 needed);
+  error InsufficientTransferAllowance(address owner, address recipient, uint256 transferAllowance, uint256 needed);
+
+  /**
+   * @notice
+   * @dev
+   */
+  error TransferAllowlistingWhenUnpaused();
 
   /**
    * @notice
@@ -43,10 +58,17 @@ interface IkarpatkeyToken {
   error TransferApprovalWhenUnpaused();
 
   /**
-   * @dev Indicates a failure with the `owner` to be allowed to transfer tokens. Used in transfer approvals.
-   * @param owner Address that may be allowed to transfer tokens.
+   * @dev
+   * @param sender Address that may be allowed to transfer tokens.
    */
-  error InvalidTransferApproval(address owner);
+  error InvalidTransferAllowlisting(address sender);
+
+  /**
+   * @dev Indicates a failure with the `sender` or the `recipient` to be allowed to transfer tokens. Used in transfer approvals.
+   * @param sender Address that may be allowed to transfer tokens.
+   * @param recipient Address to which tokens may be transferred.
+   */
+  error InvalidTransferApproval(address sender, address recipient);
 
   /**
    * @dev
@@ -61,6 +83,13 @@ interface IkarpatkeyToken {
   //////////////////////////////////////////////////////////////*/
 
   /**
+   * @notice dsds
+   * @dev  sdsdsd
+   * @param sender Address that may be allowed to transfer tokens.
+   */
+  function transferAllowlisted(address sender) external view returns (bool);
+
+  /**
    * @dev Returns the remaining number of tokens that `owner` will be
    * allowed to transfer through {transfer}, or through having a spender
    * account spend on behalf of `owner` through {transferFrom}. This is
@@ -68,7 +97,7 @@ interface IkarpatkeyToken {
    *
    * This value changes when {approveTransfer}, {transfer} or {transferFrom} are called.
    */
-  function transferAllowance(address owner) external view returns (uint256);
+  function transferAllowance(address sender, address recipient) external view returns (uint256);
 
   /*///////////////////////////////////////////////////////////////
                             LOGIC
@@ -80,13 +109,16 @@ interface IkarpatkeyToken {
    */
   function unpause() external;
 
+  function transferAllowlist(address sender) external;
+
   /**
    * @notice Approves an account to transfer tokens when the contract is paused.
    * @dev Sets the transfer allowance for `owner` to `value`. Can only be called by the token contract's owner.
-   * @param owner Address that may be allowed to transfer tokens.
+   * @param sender Address that may be allowed to transfer tokens.
+   * @param recipient Address to which tokens may be transferred.
    * @param value Amount of tokens the owner is allowed to transfer.
    */
-  function approveTransfer(address owner, uint256 value) external;
+  function approveTransfer(address sender, address recipient, uint256 value) external;
 
   /**
    * @notice Mints new tokens.

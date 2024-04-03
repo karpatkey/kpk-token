@@ -24,7 +24,8 @@ contract karpatkeyToken is
   ERC20PermitUpgradeable,
   ERC20VotesUpgradeable
 {
-  mapping(address account => uint256) private _transferAllowances;
+  mapping(address account => bool) private _transferAllowlisted;
+  mapping(address account => mapping(address recipient => uint256)) private _transferAllowances;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -41,21 +42,37 @@ contract karpatkeyToken is
   }
 
   /// @inheritdoc IkarpatkeyToken
+  function transferAllowance(address sender, address recipient) public view virtual returns (uint256) {
+    return _transferAllowances[sender][recipient];
+  }
+
+  /// @inheritdoc IkarpatkeyToken
+  function transferAllowlisted(address sender) public view virtual returns (bool) {
+    return _transferAllowlisted[sender];
+  }
+
+  /// @inheritdoc IkarpatkeyToken
   function unpause() public onlyOwner {
     _unpause();
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function transferAllowance(address owner) public view virtual returns (uint256) {
-    return _transferAllowances[owner];
+  function transferAllowlist(address owner) public virtual onlyOwner {
+    if (!paused()) {
+      revert TransferAllowlistingWhenUnpaused();
+    }
+    _transferAllowlist(owner);
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function approveTransfer(address owner, uint256 value) public virtual onlyOwner {
+  function approveTransfer(address owner, address recipient, uint256 value) public virtual onlyOwner {
     if (!paused()) {
       revert TransferApprovalWhenUnpaused();
     }
-    _approveTransfer(owner, value);
+    if (_transferAllowlisted[owner]) {
+      revert OwnerAlreadyAllowlisted(owner);
+    }
+    _approveTransfer(owner, recipient, value);
   }
 
   /// @inheritdoc IkarpatkeyToken
@@ -78,12 +95,20 @@ contract karpatkeyToken is
     return super.nonces(owner);
   }
 
-  function _approveTransfer(address owner, uint256 value) internal virtual {
-    if (owner == address(0)) {
-      revert InvalidTransferApproval(address(0));
+  function _transferAllowlist(address sender) internal virtual {
+    if (sender == address(0)) {
+      revert InvalidTransferAllowlisting(address(0));
     }
-    _transferAllowances[owner] = value;
-    emit TransferApproval(owner, value);
+    _transferAllowlisted[sender] = true;
+    emit TransferAllowlisting(sender);
+  }
+
+  function _approveTransfer(address sender, address recipient, uint256 value) internal virtual {
+    if (sender == address(0) || recipient == address(0)) {
+      revert InvalidTransferApproval(sender, recipient);
+    }
+    _transferAllowances[sender][recipient] = value;
+    emit TransferApproval(sender, recipient, value);
   }
 
   function _update(address from, address to, uint256 value) internal override(ERC20Upgradeable, ERC20VotesUpgradeable) {
@@ -91,8 +116,8 @@ contract karpatkeyToken is
       revert TransferToTokenContract();
     }
     // 'from != owner()' is included to avoid involving the transfer allowance when tokens are transferred from the owner via {transferFrom}
-    if (paused() && _msgSender() != owner() && from != owner()) {
-      _spendTransferAllowance(from, value);
+    if (paused() && _msgSender() != owner() && from != owner() && !_transferAllowlisted[from]) {
+      _spendTransferAllowance(from, to, value);
     }
     super._update(from, to, value);
   }
@@ -104,14 +129,14 @@ contract karpatkeyToken is
    * Reverts if not enough transfer allowance is available.
    *
    */
-  function _spendTransferAllowance(address owner, uint256 value) internal virtual {
-    uint256 currentTransferAllowance = transferAllowance(owner);
+  function _spendTransferAllowance(address sender, address recipient, uint256 value) internal virtual {
+    uint256 currentTransferAllowance = transferAllowance(sender, recipient);
     if (currentTransferAllowance != type(uint256).max) {
       if (currentTransferAllowance < value) {
-        revert InsufficientTransferAllowance(owner, currentTransferAllowance, value);
+        revert InsufficientTransferAllowance(sender, recipient, currentTransferAllowance, value);
       }
       unchecked {
-        _approveTransfer(owner, currentTransferAllowance - value);
+        _approveTransfer(sender, recipient, currentTransferAllowance - value);
       }
     }
   }
