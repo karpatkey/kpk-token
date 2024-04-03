@@ -51,12 +51,6 @@ contract karpatkeyToken is
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function transferByOwner(address from, address to, uint256 value) public virtual onlyOwner returns (bool) {
-    _transfer(from, to, value);
-    return true;
-  }
-
-  /// @inheritdoc IkarpatkeyToken
   function transferAllowance(address owner) public view virtual returns (uint256) {
     return _transferAllowances[owner];
   }

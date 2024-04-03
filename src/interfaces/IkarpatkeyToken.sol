@@ -87,16 +87,6 @@ interface IkarpatkeyToken {
   function unpause() external;
 
   /**
-   * @notice Transfers tokens from one account to another.
-   * @dev Moves `value` tokens from `from` to `to`. Can only be called by the token contract's owner.
-   * @param from Address to transfer tokens from.
-   * @param to Address to transfer tokens to.
-   * @param value Amount of tokens to transfer.
-   * @return bool True if the transfer was successful, otherwise false.
-   */
-  function transferByOwner(address from, address to, uint256 value) external returns (bool);
-
-  /**
    * @notice Approves an account to transfer tokens when the contract is paused.
    * @dev Sets the transfer allowance for `owner` to `value`. Can only be called by the token contract's owner.
    * @param owner Address that may be allowed to transfer tokens.

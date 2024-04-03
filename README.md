@@ -35,10 +35,6 @@ To make the token fully fledged transferable the token contract's owner has to c
 
 When unpaused the token contract's owner can at any time call the `pause` method to pause transfers once again.
 
-#### Transfer by owner
-
-The token contract's owner is at any point able to transfer tokens from any given address to any other address via the `transferByOwner` method.
-
 ### Supply
 
 The initial total supply of 1 million karpatkey tokens is minted to the token contract's owner at deployment. Tokens can be minted or burned by the token contract's owner via the `mint` and `burn` methods, respectively.

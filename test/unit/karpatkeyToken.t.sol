@@ -225,23 +225,6 @@ contract UnitTestTransfers is BaseTransfer {
     vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferToTokenContract.selector));
     _kpktoken.transfer(address(_kpktoken), _amount);
   }
-
-  function test_transferByOwner() public {
-    address _recipient = makeAddr('recipient');
-    vm.startPrank(_owner);
-    bool _result = _kpktoken.transferByOwner(_holder, _recipient, _amount - 1);
-    assertEq(_result, true);
-    assertEq(_kpktoken.balanceOf(_recipient), _amount - 1);
-    assertEq(_kpktoken.balanceOf(_holder), 1);
-  }
-
-  function test_transferByOwnerExpectedRevertOwner() public {
-    address _randomAddress = makeAddr('randomAddress');
-    address _recipient = makeAddr('recipient');
-    vm.startPrank(_randomAddress);
-    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _kpktoken.transferByOwner(_holder, _recipient, _amount - 1);
-  }
 }
 
 contract UnitTestTransferFrom is BaseTransfer {
