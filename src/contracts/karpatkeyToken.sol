@@ -41,11 +41,6 @@ contract karpatkeyToken is
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function pause() public onlyOwner {
-    _pause();
-  }
-
-  /// @inheritdoc IkarpatkeyToken
   function unpause() public onlyOwner {
     _unpause();
   }

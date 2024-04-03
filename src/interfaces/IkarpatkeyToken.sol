@@ -75,12 +75,6 @@ interface IkarpatkeyToken {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice Pauses token transfers.
-   * @dev Prevents transfers of tokens. Can only be called by the token contract's owner.
-   */
-  function pause() external;
-
-  /**
    * @notice Unpauses token transfers.
    * @dev Allows transfers of tokens. Can only be called by the token contract's owner.
    */

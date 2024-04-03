@@ -33,7 +33,7 @@ The token contract is initially deployed in paused state, which makes the token 
 
 To make the token fully fledged transferable the token contract's owner has to call the `unpause` method of the token contract. Once the token contract is in unpaused state the `transferAllowance` and the `approveTransfer` method are rendered obsolete.
 
-When unpaused the token contract's owner can at any time call the `pause` method to pause transfers once again.
+Once unpaused the cannot be paused again.
 
 ### Supply
 
