@@ -5,6 +5,8 @@ pragma solidity ^0.8.20;
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import {ERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
+import {ERC20BurnableUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol';
 import {
   ERC20PermitUpgradeable,
   NoncesUpgradeable
@@ -19,36 +21,38 @@ contract karpatkeyToken is
   Initializable,
   IkarpatkeyToken,
   ERC20Upgradeable,
+  ERC20BurnableUpgradeable,
   PausableUpgradeable,
   OwnableUpgradeable,
   ERC20PermitUpgradeable,
   ERC20VotesUpgradeable
 {
-  mapping(address account => bool) private _transferAllowlisted;
-  mapping(address account => mapping(address recipient => uint256)) private _transferAllowances;
+  mapping(address account => bool allowlisted) private _transferAllowlisted;
+  mapping(address account => mapping(address recipient => uint256 amount)) private _transferAllowances;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }
 
-  function initialize(address initialOwner) public initializer {
+  function initialize(address _initialOwner) public initializer {
     __ERC20_init('karpatkey Token', 'KPK');
+    __ERC20Burnable_init();
     __ERC20Permit_init('karpatkey Token');
     __ERC20Votes_init();
-    __Ownable_init(initialOwner);
-    _mint(initialOwner, 1_000_000 * 10 ** decimals());
+    __Ownable_init(_initialOwner);
+    _mint(_initialOwner, 1_000_000 * 10 ** decimals());
     _pause();
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function transferAllowance(address sender, address recipient) public view virtual returns (uint256) {
-    return _transferAllowances[sender][recipient];
+  function transferAllowance(address _sender, address _recipient) public view virtual returns (uint256 _value) {
+    return _transferAllowances[_sender][_recipient];
   }
 
   /// @inheritdoc IkarpatkeyToken
-  function transferAllowlisted(address sender) public view virtual returns (bool) {
-    return _transferAllowlisted[sender];
+  function transferAllowlisted(address _sender) public view virtual returns (bool _allowlisted) {
+    return _transferAllowlisted[_sender];
   }
 
   /// @inheritdoc IkarpatkeyToken
@@ -75,23 +79,36 @@ contract karpatkeyToken is
     _approveTransfer(owner, recipient, value);
   }
 
-  /// @inheritdoc IkarpatkeyToken
   function mint(address to, uint256 amount) public onlyOwner {
     _mint(to, amount);
   }
 
-  /// @inheritdoc IkarpatkeyToken
-  function burn(address owner, uint256 value) public virtual onlyOwner {
-    _burn(owner, value);
-  }
-
-  /// @inheritdoc IkarpatkeyToken
-  function rescueToken(IERC20 token, address beneficiary, uint256 value) public virtual onlyOwner returns (bool) {
-    _rescueToken(token, beneficiary, value);
+  /**
+   * @notice Transfers tokens held by token contract to a beneficiary.
+   * @dev Transfers `value` amount of `token` held by the token contract to `beneficiary`. Can only be called by the token contract's owner.
+   * @param token Address of the token to be transferred.
+   * @param beneficiary Address to receive the tokens.
+   * @param value Amount of tokens to be transferred.
+   */
+  function rescueToken(
+    IERC20 token,
+    address beneficiary,
+    uint256 value
+  ) public virtual onlyOwner returns (bool success) {
+    uint256 balance = token.balanceOf(address(this));
+    if (balance < value) {
+      revert InsufficientBalanceToRescue(token, value, balance);
+    }
+    token.transfer(beneficiary, value);
     return true;
   }
 
-  function nonces(address owner) public view override(ERC20PermitUpgradeable, NoncesUpgradeable) returns (uint256) {
+  function nonces(address owner)
+    public
+    view
+    override(ERC20PermitUpgradeable, NoncesUpgradeable)
+    returns (uint256 nonce)
+  {
     return super.nonces(owner);
   }
 
@@ -139,13 +156,5 @@ contract karpatkeyToken is
         _approveTransfer(sender, recipient, currentTransferAllowance - value);
       }
     }
-  }
-
-  function _rescueToken(IERC20 token, address beneficiary, uint256 value) internal virtual {
-    uint256 balance = token.balanceOf(address(this));
-    if (balance < value) {
-      revert InsufficientBalanceToRescue(token, value, balance);
-    }
-    token.transfer(beneficiary, value);
   }
 }

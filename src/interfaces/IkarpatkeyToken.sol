@@ -121,22 +121,6 @@ interface IkarpatkeyToken {
   function approveTransfer(address sender, address recipient, uint256 value) external;
 
   /**
-   * @notice Mints new tokens.
-   * @dev Creates a `value` amount of tokens allocated to address 'to'. Can only be called by the token contract's owner.
-   *
-   * See {ERC20-_mint}.
-   */
-  function mint(address to, uint256 amount) external;
-
-  /**
-   * @notice Burns tokens
-   * @dev Destroys a `value` amount of tokens held by the token holder 'owner'. Can only be called by the token contract's owner.
-   *
-   * See {ERC20-_burn}.
-   */
-  function burn(address owner, uint256 value) external;
-
-  /**
    * @notice Transfers tokens held by token contract to a beneficiary.
    * @dev Transfers `value` amount of `token` held by the token contract to `beneficiary`. Can only be called by the token contract's owner.
    * @param token Address of the token to be transferred.

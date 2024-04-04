@@ -5,9 +5,10 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import {Test} from 'forge-std/Test.sol';
 
 import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {Test} from 'forge-std/Test.sol';
+import 'forge-std/console.sol';
 import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 import {Upgrades} from 'openzeppelin-foundry-upgrades/Upgrades.sol';
 
@@ -68,26 +69,26 @@ contract UnitTestTransferOwnership is Base {
 }
 
 contract UnitTestBurn is Base {
-  function test_Burn() public {
+  function test_BurnOwner() public {
+    uint256 _amount = 100;
+    uint256 _initialTotalSupply = _kpktoken.totalSupply();
+    vm.startPrank(_owner);
+    _kpktoken.burn(_amount);
+    assertEq(_kpktoken.balanceOf(_owner), _initialTotalSupply - _amount);
+    assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount);
+  }
+
+  function test_BurnAllowlisted() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     vm.startPrank(_owner);
     _kpktoken.mint(_holder, _amount);
+    _kpktoken.transferAllowlist(_holder);
     uint256 _initialTotalSupply = _kpktoken.totalSupply();
-    _kpktoken.burn(_holder, _amount - 1);
+    vm.startPrank(_holder);
+    _kpktoken.burn(_amount - 1);
     assertEq(_kpktoken.balanceOf(_holder), 1);
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
-  }
-
-  function test_BurnExpectedRevertOwner() public {
-    address _randomAddress = makeAddr('randomAddress');
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
-    vm.prank(_owner);
-    _kpktoken.mint(_holder, _amount);
-    vm.startPrank(_randomAddress);
-    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
-    _kpktoken.burn(_holder, _amount - 1);
   }
 
   function test_BurnExpectedRevert() public {
@@ -95,10 +96,12 @@ contract UnitTestBurn is Base {
     uint256 _amount = 100;
     vm.startPrank(_owner);
     _kpktoken.mint(_holder, _amount);
+    _kpktoken.transferAllowlist(_holder);
+    vm.startPrank(_holder);
     vm.expectRevert(
       abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amount, _amount + 1)
     );
-    _kpktoken.burn(_holder, _amount + 1);
+    _kpktoken.burn(_amount + 1);
   }
 }
 
@@ -149,7 +152,7 @@ contract UnitTestTransferAllowlisting is Base {
 }
 
 contract UnitTestTransferAllowance is Base {
-  event TransferApproval(address indexed sender, address indexed recipient, uint256 value);
+  event TransferApproval(address indexed _sender, address indexed _recipient, uint256 _value);
 
   function test_transferAllowance() public {
     address _sender = makeAddr('sender');
@@ -199,8 +202,8 @@ contract UnitTestFirstTransfer is Base {
     address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
     vm.startPrank(_owner);
-    bool result = _kpktoken.transfer(_recipient, _amount);
-    assertEq(result, true);
+    bool _result = _kpktoken.transfer(_recipient, _amount);
+    assertEq(_result, true);
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
     assertEq(_kpktoken.balanceOf(_owner), _kpktoken.totalSupply() - _amount);
   }
