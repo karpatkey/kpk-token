@@ -140,7 +140,7 @@ contract UnitTestTransferAllowlisting is Base {
     _kpktoken.transferAllowlist(_randomAddress);
   }
 
-  function test_transferAllowlistWhenUnpausedExpectedRevert() public {
+  function test_transferAllowlistExpectedRevertTransferAllowlistingWhenUnpaused() public {
     address _sender = makeAddr('sender');
     vm.startPrank(_owner);
     _kpktoken.unpause();
@@ -174,7 +174,7 @@ contract UnitTestTransferAllowance is Base {
     _kpktoken.approveTransfer(_randomAddress, _recipient, _amount);
   }
 
-  function test_transferAllowanceWhenPausedExpectedRevert() public {
+  function test_transferAllowanceExpectedRevertTransferApprovalWhenUnpaused() public {
     uint256 _amount = 100;
     address _sender = makeAddr('sender');
     address _recipient = makeAddr('recipient');
@@ -184,7 +184,7 @@ contract UnitTestTransferAllowance is Base {
     _kpktoken.approveTransfer(_sender, _recipient, _amount);
   }
 
-  function test_transferAllowanceAllowlistedExpectedRevert() public {
+  function test_transferAllowanceExpectedRevertOwnerAlreadyAllowlisted() public {
     uint256 _amount = 100;
     address _sender = makeAddr('sender');
     address _recipient = makeAddr('recipient');
@@ -220,7 +220,7 @@ abstract contract BaseTransfer is Base {
 }
 
 contract UnitTestTransfers is BaseTransfer {
-  function test_transferExpectedRevert() public {
+  function test_transferExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_sender);
     vm.expectRevert(
       abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
@@ -248,7 +248,7 @@ contract UnitTestTransfers is BaseTransfer {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), type(uint256).max);
   }
 
-  function test_transferToContractExpectedRevert() public {
+  function test_transferExpectedRevertTransferToTokenContract() public {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
@@ -272,7 +272,7 @@ contract UnitTestTransferFrom is BaseTransfer {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), 1);
   }
 
-  function test_transferFromExpectedRevert() public {
+  function test_transferFromExpectedRevertInsufficientTransferAllowance() public {
     address _mover = makeAddr('mover');
     address _recipient = makeAddr('recipient');
     vm.startPrank(_sender);
@@ -298,7 +298,7 @@ contract UnitTestTransferFrom is BaseTransfer {
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
   }
 
-  function test_transferFromOwnerExpectedRevert() public {
+  function test_transferFromOwnerExpectedRevertERC20InsufficientAllowance() public {
     address _mover = makeAddr('mover');
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
@@ -334,7 +334,7 @@ contract UnitTestRescueToken is BaseRescueToken {
     assertEq(_dai.balanceOf(address(_kpktoken)), 1);
   }
 
-  function test_rescueTokenExpectedRevert() public {
+  function test_rescueTokenExpectedRevertInsufficientBalanceToRescue() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
     vm.expectRevert(
