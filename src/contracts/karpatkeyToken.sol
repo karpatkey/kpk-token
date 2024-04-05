@@ -44,15 +44,18 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Indicates the granting of unrestricted permission to an address to transfer tokens when the contract is paused.
+   * @notice Indicates the granting of unrestricted permission to an address to transfer tokens when
+   * the contract is paused.
    * @dev Emmited when an address is added to the transfer allowlist by a call to {transferAllowlist}.
    * @param _sender Address that is allowlisted to transfer tokens.
    */
   event TransferAllowlisting(address indexed _sender);
 
   /**
-   * @notice Indicates the setting of a transfer allowance for an address to transfer tokens to a specified recipient when the contract is paused.
-   * @dev Emitted when the transfer allowance for a `_sender` and a `_recipient` is set by a call to {approveTransfer}. `value` is the new transfer allowance.
+   * @notice Indicates the setting of a transfer allowance for an address to transfer tokens to a
+   * specified recipient when the contract is paused.
+   * @dev Emitted when the transfer allowance for a `_sender` and a `_recipient` is set by a call to
+   *  {approveTransfer}. `value` is the new transfer allowance.
    * @param _sender Address that may be allowed to transfer tokens.
    * @param _recipient Address to which tokens may be transferred.
    * @param _value New transfer allowance; maximum amount of tokens the owner is allowed to transfer.
@@ -67,19 +70,23 @@ contract karpatkeyToken is
 
   /**
    * @notice Indicates that the owner is already allowlisted to transfer tokens.
-   * @dev Thrown when {transferAllowlist} is called for '_sender' when '_sender' is already allowlisted.
+   * @dev Thrown when {transferAllowlist} is called for '_sender' when '_sender' is already
+   * allowlisted.
    * @param _sender Address that is already allowlisted to transfer tokens.
    */
   error OwnerAlreadyAllowlisted(address _sender);
 
   /**
-   * @dev Indicates a failure with the caller's `transferAllowance`. Used in transfers.
-   * @param _owner Address that may be allowed to transfer tokens.
+   * @notice Indicates a failure with the caller's transfer allowance for the specified recipient.
+   * @dev Thrown by {_spendTransferAllowance} when {transfer} or {transferFrom} are called and
+   * transfer allowance for `_sender for `_recipient` is insufficient to perform a transfer.
+   * @param _sender Address that may be allowed to transfer tokens.
    * @param _recipient Address to which tokens are intended to be transferred.
-   * @param _transferAllowance Maximum amount of tokens the owner is allowed to transfer to the recipient.
+   * @param _transferAllowance Maximum amount of tokens the owner is allowed to transfer to the
+   * recipient.
    * @param _needed Minimum transfer allowance required to perform the transfer.
    */
-  error InsufficientTransferAllowance(address _owner, address _recipient, uint256 _transferAllowance, uint256 _needed);
+  error InsufficientTransferAllowance(address _sender, address _recipient, uint256 _transferAllowance, uint256 _needed);
 
   /**
    * @notice Indicates that the contract is unpaused when a transfer allowlisting is attempted.
@@ -100,15 +107,18 @@ contract karpatkeyToken is
   error InvalidTransferAllowlisting(address _sender);
 
   /**
-   * @dev Indicates a failure with the `sender` or the `recipient` to be allowed to transfer tokens. Used in transfer approvals.
+   * @dev Indicates a failure with the `sender` or the `recipient` to be allowed to transfer
+   * tokens. Used in transfer approvals.
    * @param _sender Address that may be allowed to transfer tokens.
    * @param _recipient Address to which tokens may be transferred.
    */
   error InvalidTransferApproval(address _sender, address _recipient);
 
   /**
-   * @notice Indicates that the token contract does not have enough balance of the token to be rescued.
-   * @dev Thrown when {rescueToken} is called attempting to transfer a higher amount of the token to be rescued than the token contract's balance.
+   * @notice Indicates that the token contract does not have enough balance of the token to
+   * be rescued.
+   * @dev Thrown when {rescueToken} is called attempting to transfer a higher amount of the
+   * token to be rescued than the token contract's balance.
    * @param _token Address of the token to be transferred.
    * @param _value Amount of tokens to be transferred.
    * @param _balance Token contract's balance of `_token`.
@@ -117,7 +127,8 @@ contract karpatkeyToken is
 
   /**
    * @notice Indicates whether an address is allowlisted to transfer tokens.
-   * @dev  Returns `true` if `_sender` has been allowlisted to transfer tokens by a call to {transferAllowlist}, otherwise `false`.
+   * @dev  Returns `true` if `_sender` has been allowlisted to transfer tokens by a call to
+   * {transferAllowlist}, otherwise `false`.
    * This value changes when {transferAllowlist} is called.
    * @param _sender Address to check if it is allowlisted to transfer tokens.
    */
@@ -139,16 +150,18 @@ contract karpatkeyToken is
 
   /**
    * @notice Unpauses token transfers.
-   * @dev Allows transfers and burning of tokens. Can only be called by the token contract's owner. Renders {transferAllowlist} and
-   * {approveTransfer} obsolete.
+   * @dev Allows transfers and burning of tokens. Can only be called by the token contract's
+   *  owner. Renders {transferAllowlist} and {approveTransfer} obsolete.
    */
   function unpause() public onlyOwner {
     _unpause();
   }
 
   /**
-   * @notice Grants unrestricted permission to an address to transfer tokens when the contract is paused.
-   * @dev Allowlists `_owner` so that it can transfer tokens via {transfer}, {transferFrom} and {burn}. Can only be called by the token contract's owner.
+   * @notice Grants unrestricted permission to an address to transfer tokens when the contract
+   * is paused.
+   * @dev Allowlists `_owner` so that it can transfer tokens via {transfer}, {transferFrom} and
+   * {burn}. Can only be called by the token contract's owner.
    * If called when the contract is unpaused, reverts with {TransferAllowlistingWhenUnpaused}.
    * @param _owner Address that is allowlisted to transfer tokens.
    */
@@ -160,8 +173,10 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Approves an account to transfer tokens to a specified recipient when the contract is paused.
-   * @dev Sets the transfer allowance for `_sender` and `_recipient` to `_value`. Can only be called by the token contract's owner.
+   * @notice Approves an account to transfer tokens to a specified recipient when the contract
+   * is paused.
+   * @dev Sets the transfer allowance for `_sender` and `_recipient` to `_value`. Can only be
+   * called by the token contract's owner.
    * Reverts with {TransferApprovalWhenUnpaused} if called when the contract is unpaused.
    * Reverts with {OwnerAlreadyAllowlisted} if `_sender` is already allowlisted.
    * See {_approveTransfer}.
@@ -181,7 +196,8 @@ contract karpatkeyToken is
 
   /**
    * @notice Mints new tokens.
-   * @dev Creates a `_amount` amount of tokens and assigns them to `_to`, by transferring it from address(0). Can only be called
+   * @dev Creates a `_amount` amount of tokens and assigns them to `_to`, by transferring it
+   * from address(0). Can only be called
    * by the token contract's owner.
    * See {ERC20Upgradeable-_mint}.
    * @param _to Address to receive the tokens.
@@ -192,9 +208,12 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Transfers tokens held by the token contract to a recipient. Meant for tokens that have been unintentionally sent to the contract.
-   * @dev Transfers `_value` amount of `_token` held by the contract to `_recipient`. Can only be called by the contract's owner.
-   * Reverts with {InsufficientBalanceToRescue} if the contract's balance of `_token` is less than `_value`.
+   * @notice Transfers tokens held by the token contract to a recipient. Meant for tokens
+   * that have been unintentionally sent to the contract.
+   * @dev Transfers `_value` amount of `_token` held by the contract to `_recipient`. Can
+   * only be called by the contract's owner.
+   * Reverts with {InsufficientBalanceToRescue} if the contract's balance of `_token` is
+   * less than `_value`.
    * @param _token Address of the token to be transferred.
    * @param _recipient Address to receive the tokens.
    * @param _value Amount of tokens to be transferred.
@@ -222,7 +241,8 @@ contract karpatkeyToken is
   }
 
   /**
-   * @dev Allowlists `_sender` so that it can transfer tokens via {transfer}, {transferFrom} and {burn}.
+   * @dev Allowlists `_sender` so that it can transfer tokens via {transfer}, {transferFrom}
+   * and {burn}.
    * Emits a {TransferAllowlisting} event.
    * Reverts with {InvalidTransferAllowlisting} if `_sender` is the zero address.
    * @param _sender Address that is allowlisted to transfer tokens.
@@ -259,7 +279,8 @@ contract karpatkeyToken is
     if (_to == address(this)) {
       revert TransferToTokenContract();
     }
-    // 'from != owner()' is included to avoid involving the transfer allowance when tokens are transferred from the owner via {transferFrom}
+    // 'from != owner()' is included to avoid involving the transfer allowance mechanism when
+    // tokens are transferred from the owner via {transferFrom}
     if (paused() && _msgSender() != owner() && _from != owner() && !_transferAllowlisted[_from]) {
       _spendTransferAllowance(_from, _to, _value);
     }
@@ -267,11 +288,12 @@ contract karpatkeyToken is
   }
 
   /**
-   * @dev Updates `owner` s transfer allowance based on spent `value`.
-   *
-   * Does not update the transfer allowance value in case of infinite allowance.
-   * Reverts if not enough transfer allowance is available.
-   *
+   * @dev Updates `owner` s transfer allowance to transfer to `_recipient` based on spent `_value`.
+   * Does not update the transfer allowance value in case of infinite transfer allowance.
+   * Reverts with {InsufficientTransferAllowance} if not enough transfer allowance is available.
+   * @param _sender Address that may be allowed to transfer tokens.
+   * @param _recipient Address to which tokens may be transferred.
+   * @param _value Amount to be spent from the transfer allowance.
    */
   function _spendTransferAllowance(address _sender, address _recipient, uint256 _value) internal virtual {
     uint256 _currentTransferAllowance = transferAllowance(_sender, _recipient);
