@@ -8,8 +8,6 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 import {Test} from 'forge-std/Test.sol';
-import 'forge-std/console.sol';
-import {IkarpatkeyToken} from 'interfaces/IkarpatkeyToken.sol';
 import {Upgrades} from 'openzeppelin-foundry-upgrades/Upgrades.sol';
 
 abstract contract Base is Test {
@@ -146,7 +144,7 @@ contract UnitTestTransferAllowlisting is Base {
     address _sender = makeAddr('sender');
     vm.startPrank(_owner);
     _kpktoken.unpause();
-    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferAllowlistingWhenUnpaused.selector));
+    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferAllowlistingWhenUnpaused.selector));
     _kpktoken.transferAllowlist(_sender);
   }
 }
@@ -182,7 +180,7 @@ contract UnitTestTransferAllowance is Base {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
     _kpktoken.unpause();
-    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferApprovalWhenUnpaused.selector));
+    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferApprovalWhenUnpaused.selector));
     _kpktoken.approveTransfer(_sender, _recipient, _amount);
   }
 
@@ -192,7 +190,7 @@ contract UnitTestTransferAllowance is Base {
     address _recipient = makeAddr('recipient');
     vm.startPrank(_owner);
     _kpktoken.transferAllowlist(_sender);
-    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.OwnerAlreadyAllowlisted.selector, _sender));
+    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.OwnerAlreadyAllowlisted.selector, _sender));
     _kpktoken.approveTransfer(_sender, _recipient, _amount);
   }
 }
@@ -225,7 +223,7 @@ contract UnitTestTransfers is BaseTransfer {
   function test_transferExpectedRevert() public {
     vm.startPrank(_sender);
     vm.expectRevert(
-      abi.encodeWithSelector(IkarpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
+      abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
     );
     _kpktoken.transfer(_recipient, _amount);
   }
@@ -254,7 +252,7 @@ contract UnitTestTransfers is BaseTransfer {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
-    vm.expectRevert(abi.encodeWithSelector(IkarpatkeyToken.TransferToTokenContract.selector));
+    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferToTokenContract.selector));
     _kpktoken.transfer(address(_kpktoken), _amount);
   }
 }
@@ -284,7 +282,7 @@ contract UnitTestTransferFrom is BaseTransfer {
     vm.startPrank(_mover);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IkarpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, _amount, _amount + 1
+        karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, _amount, _amount + 1
       )
     );
     _kpktoken.transferFrom(_sender, _recipient, _amount + 1);
@@ -340,7 +338,7 @@ contract UnitTestRescueToken is BaseRescueToken {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
     vm.expectRevert(
-      abi.encodeWithSelector(IkarpatkeyToken.InsufficientBalanceToRescue.selector, _dai, _amount + 1, _amount)
+      abi.encodeWithSelector(karpatkeyToken.InsufficientBalanceToRescue.selector, _dai, _amount + 1, _amount)
     );
     _kpktoken.rescueToken(_dai, _beneficiary, _amount + 1);
   }
