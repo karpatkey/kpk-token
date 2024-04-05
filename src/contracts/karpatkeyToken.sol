@@ -181,22 +181,18 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Transfers tokens held by token contract to a beneficiary.
-   * @dev Transfers `value` amount of `token` held by the token contract to `beneficiary`. Can only be called by the token contract's owner.
+   * @notice Transfers tokens held by the token contract to a recipient.
+   * @dev Transfers `value` amount of `token` held by the token contract to `_recipient`. Can only be called by the token contract's owner.
    * @param _token Address of the token to be transferred.
-   * @param _beneficiary Address to receive the tokens.
+   * @param _recipient Address to receive the tokens.
    * @param _value Amount of tokens to be transferred.
    */
-  function rescueToken(
-    IERC20 _token,
-    address _beneficiary,
-    uint256 _value
-  ) public virtual onlyOwner returns (bool _success) {
+  function rescueToken(IERC20 _token, address _recipient, uint256 _value) public onlyOwner returns (bool _success) {
     uint256 _balance = _token.balanceOf(address(this));
     if (_balance < _value) {
       revert InsufficientBalanceToRescue(_token, _value, _balance);
     }
-    _token.transfer(_beneficiary, _value);
+    _token.transfer(_recipient, _value);
     return true;
   }
 

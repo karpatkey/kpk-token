@@ -21,9 +21,9 @@
     "lint:sol-logic": "solhint -c .solhint.json 'src/**/*.sol' 'script/**/*.sol'",
     "lint:sol-tests": "solhint 'test/**/*.sol'",
     "prepare": "husky install",
-    "test": "forge clean && forge test -vvv",
-    "test:integration": "forge clean && forge test --match-contract Integration -vvv",
-    "test:unit": "forge clean && forge test --match-contract Unit -vvv",
+    "test": "forge clean && forge build && forge test -vvv",
+    "test:integration": "forge clean && forge build && forge test --match-contract Integration -vvv",
+    "test:unit": "forge clean && forge build && forge test --match-contract Unit -vvv",
     "test:unit:deep": "FOUNDRY_FUZZ_RUNS=5000 yarn test:unit"
   },
   "lint-staged": {
