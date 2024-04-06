@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Following the tradition of our sister projects CowDAO and SafeDAO and their spinoffs in [GIP-13]() and [GIP-29](https://forum.gnosis.io/t/gip-29-spin-off-safedao-and-launch-safe-token/3476), respectively, karpatkey will launch their DAO spinoff from the GnosisDAO. if [GIP-92](https://forum.gnosis.io/t/gip-92-should-gnosis-dao-spin-off-karpatkey-dao-and-deploy-the-kpk-token/8115) is approved, the GnosisDAO will deploy KPK as an ERC20 token.
+Following the tradition of our sister projects CowDAO and SafeDAO and their spinoffs in [GIP-13]() and [GIP-29](https://forum.gnosis.io/t/gip-29-spin-off-safedao-and-launch-safe-token/3476), respectively, karpatkey will launch their DAO spinoff from the GnosisDAO. If [GIP-92](https://forum.gnosis.io/t/gip-92-should-gnosis-dao-spin-off-karpatkey-dao-and-deploy-the-kpk-token/8115) is approved, the GnosisDAO will deploy KPK as an ERC20 token.
 
 ## Utility
 
@@ -32,7 +32,7 @@ The contract is initially deployed in paused state, which makes the token non-tr
 
 #### Transfer allowlisting
 
-When the contract is in paused state the owner may allowlist addresses granting them unrestricted transferring permission by calling the `transferAllowlist` method.
+When the contract is in paused state the owner can allowlist addresses granting them unrestricted transferring permission by calling the `transferAllowlist` method.
 
 The `transferAllowlisted` method indicates whether an address has been allowlisted or not.
 
@@ -40,7 +40,7 @@ An allowlisted address is able to transfer and burn tokens by calling the `trans
 
 #### Transfer allowance
 
-When the contract is in paused state the owner may grant permission to an address to transfer tokens to a specified recipient by calling the `approveTransfer` method.
+When the contract is in paused state the owner can grant permission to an address to transfer tokens to a specified recipient by calling the `approveTransfer` method.
 
 The `transferAllowance` method returns the amount of tokens a token holder is allowed to transfer to a specified recipient.
 
@@ -56,7 +56,7 @@ The initial total supply of 1 million karpatkey tokens is minted to the token co
 
 ### ERC20 token recovery
 
-To recover ERC20 tokens that have been sent to the token contract it is possible to use the `rescueToken` method to transfer tokens to another address.
+To recover ERC20 tokens that have been sent to the contract the owner can call the `rescueToken` method to transfer these tokens to another address.
 
 ### Upgradeability
 
