@@ -6,60 +6,56 @@ import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.so
 import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 
 contract UnitTestBurn is Base {
+  address internal _holder = makeAddr('holder');
+  uint256 internal _amount = 100;
+  uint256 internal _amountToMint = 150;
+  uint256 internal _initialTotalSupply;
+
+  function setUp() public virtual override(Base) {
+    super.setUp();
+    vm.startPrank(_owner);
+    _kpktoken.mint(_holder, _amountToMint);
+    _initialTotalSupply = _kpktoken.totalSupply();
+  }
+
   function test_BurnOwner() public {
-    uint256 _amount = 100;
-    uint256 _initialTotalSupply = _kpktoken.totalSupply();
+    uint256 _initialBalance = _kpktoken.balanceOf(_owner);
     vm.startPrank(_owner);
     _kpktoken.burn(_amount);
-    assertEq(_kpktoken.balanceOf(_owner), _initialTotalSupply - _amount);
+    assertEq(_kpktoken.balanceOf(_owner), _initialBalance - _amount);
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount);
   }
 
   function test_BurnAllowlisted() public {
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
     vm.startPrank(_owner);
-    _kpktoken.mint(_holder, _amount);
     _kpktoken.transferAllowlist(_holder, true);
-    uint256 _initialTotalSupply = _kpktoken.totalSupply();
     vm.startPrank(_holder);
     _kpktoken.burn(_amount - 1);
-    assertEq(_kpktoken.balanceOf(_holder), 1);
+    assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
   function test_BurnTransferAllowance() public {
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
     vm.startPrank(_owner);
-    _kpktoken.mint(_holder, _amount);
     _kpktoken.approveTransfer(_holder, address(0), _amount);
-    uint256 _initialTotalSupply = _kpktoken.totalSupply();
     vm.startPrank(_holder);
     _kpktoken.burn(_amount - 1);
-    assertEq(_kpktoken.balanceOf(_holder), 1);
+    assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
     assertEq(_kpktoken.transferAllowance(_holder, address(0)), 1);
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
   function test_BurnExpectedRevertERC20InsufficientBalance() public {
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
     vm.startPrank(_owner);
-    _kpktoken.mint(_holder, _amount);
     _kpktoken.transferAllowlist(_holder, true);
     vm.startPrank(_holder);
     vm.expectRevert(
-      abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amount, _amount + 1)
+      abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amountToMint, _amountToMint + 1)
     );
-    _kpktoken.burn(_amount + 1);
+    _kpktoken.burn(_amountToMint + 1);
   }
 
   function test_BurnExpectedRevertInsufficientTransferAllowance() public {
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
-    vm.startPrank(_owner);
-    _kpktoken.mint(_holder, _amount);
     vm.startPrank(_holder);
     vm.expectRevert(
       abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _holder, address(0), 0, _amount)
