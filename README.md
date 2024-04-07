@@ -20,7 +20,7 @@ The initial total supply will be 1 million KPK and non-transferable for the fore
 
 ### Ownership
 
-The karpatkey token contract is ownable and the initial token supply is minted to the specified owner (the karpatkey DAO). Ownership can be transferred and revoked at any point.
+The karpatkey token contract is ownable and the initial token supply is minted to the specified owner (the karpatkey DAO). Ownership can be transferred and renounced at any point.
 
 ### Transferability
 
@@ -52,7 +52,13 @@ Once unpaused the token is made fully fledged transferable, and the `transferAll
 
 ### Supply
 
-The initial total supply of 1 million karpatkey tokens is minted to the token contract's owner at deployment. Tokens can be minted or burned by the token contract's owner via the `mint` and `burn` methods, respectively.
+The initial total supply of 1 million karpatkey tokens is minted to the contract's owner at deployment. Tokens can be minted or burned by the contract's owner via the `mint` and `burn`, `burnFrom` methods, respectively.
+
+#### Burning and paused state
+
+When the contract is in paused state, token holders (other than the contract's owner) cannot burn tokens unless thay are allowlisted via `transferAllowlist` or are granted transfer allowance via `approveTransfer`with the recipient being the zero address.
+
+Once the contract is unpaused, token holders can freely burn tokens via the `burn`and `burnFrom` methods.
 
 ### ERC20 token recovery
 
@@ -63,3 +69,5 @@ To recover ERC20 tokens that have been sent to the contract the owner can call t
 The contract is upgradeable following the Transparent Proxy pattern.
 
 ### On-chain governance
+
+The contract inherits Open Zeppelin's [ERC20VotesUpgradebale](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol) contract for the deployment of a Governor contract.

@@ -278,7 +278,7 @@ contract karpatkeyToken is
   }
 
   /**
-   * @dev Updates `owner` s transfer allowance to transfer to `recipient` based on spent `value`.
+   * @dev Updates `sender`'s transfer allowance to transfer to `recipient` based on spent `value`.
    * Does not update the transfer allowance value in case of infinite transfer allowance.
    * Reverts with {InsufficientTransferAllowance} if not enough transfer allowance is available.
    * @param sender Address that may be allowed to transfer tokens.
