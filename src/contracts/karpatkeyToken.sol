@@ -16,6 +16,11 @@ import {ERC20VotesUpgradeable} from
 
 import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
 
+/**
+ * @title karpatkey Token Contract
+ * @author karpatkey developers
+ * @notice karpatkey's governance token.
+ */
 contract karpatkeyToken is
   Initializable,
   ERC20Upgradeable,
