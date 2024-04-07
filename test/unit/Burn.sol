@@ -71,4 +71,23 @@ contract UnitTestBurn is Base {
     );
     _kpktoken.burn(_amount);
   }
+
+  function testBurnWhenUnpaused() public {
+    vm.startPrank(_owner);
+    _kpktoken.unpause();
+    vm.startPrank(_holder);
+    _kpktoken.burn(_amount - 1);
+    assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
+    assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
+  }
+
+  function testBurnWhenUnpausedExpectedRevertERC20InsufficientBalance() public {
+    vm.startPrank(_owner);
+    _kpktoken.unpause();
+    vm.startPrank(_holder);
+    vm.expectRevert(
+      abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, _holder, _amountToMint, _amountToMint + 1)
+    );
+    _kpktoken.burn(_amountToMint + 1);
+  }
 }
