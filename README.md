@@ -56,9 +56,9 @@ The initial total supply of 1 million karpatkey tokens is minted to the contract
 
 #### Burning and paused state
 
-When the contract is in paused state, token holders (other than the contract's owner) cannot burn tokens unless thay are allowlisted via `transferAllowlist` or are granted transfer allowance via `approveTransfer`with the recipient being the zero address.
+When the contract is in paused state, token holders (other than the contract's owner) cannot burn tokens unless thay are allowlisted via `transferAllowlist` or are granted transfer allowance via `approveTransfer` with the recipient being the zero address.
 
-Once the contract is unpaused, token holders can freely burn tokens via the `burn`and `burnFrom` methods.
+Once the contract is unpaused, token holders can freely burn tokens via the `burn` and `burnFrom` methods.
 
 ### ERC20 token recovery
 
