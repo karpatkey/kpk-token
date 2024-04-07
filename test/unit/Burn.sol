@@ -45,6 +45,16 @@ contract UnitTestBurn is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
+  function testBurnInfiniteTransferAllowance() public {
+    vm.startPrank(_owner);
+    _kpktoken.approveTransfer(_holder, address(0), type(uint256).max);
+    vm.startPrank(_holder);
+    _kpktoken.burn(_amount - 1);
+    assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
+    assertEq(_kpktoken.transferAllowance(_holder, address(0)), type(uint256).max);
+    assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
+  }
+
   function testBurnExpectedRevertERC20InsufficientBalance() public {
     vm.startPrank(_owner);
     _kpktoken.transferAllowlist(_holder, true);
