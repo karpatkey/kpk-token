@@ -18,7 +18,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.transfer(_sender, _amount);
   }
 
-  function test_transferFromOwner() public {
+  function testTransferFromOwner() public {
     vm.startPrank(_owner);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_mover);
@@ -27,7 +27,7 @@ contract UnitTestTransferFrom is Base {
     assertEq(_kpktoken.balanceOf(_owner), _kpktoken.totalSupply() - 2 * _amount + 1);
   }
 
-  function test_transferFromOwnerExpectedRevertERC20InsufficientAllowance() public {
+  function testTransferFromOwnerExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_owner);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_mover);
@@ -37,7 +37,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.transferFrom(_owner, _recipient, _amount + 1);
   }
 
-  function test_transferFromTransferAllowance() public {
+  function testTransferFromTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -50,7 +50,7 @@ contract UnitTestTransferFrom is Base {
     assertEq(_kpktoken.allowance(_sender, _mover), 1);
   }
 
-  function test_transferFromInfiniteTransferAllowance() public {
+  function testTransferFromInfiniteTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -62,7 +62,7 @@ contract UnitTestTransferFrom is Base {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), type(uint256).max);
   }
 
-  function test_transferFromExpectedRevertInsufficientTransferAllowance() public {
+  function testTransferFromExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount + 1);
     vm.startPrank(_owner);
@@ -76,7 +76,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.transferFrom(_sender, _recipient, _amount + 1);
   }
 
-  function test_transferFromExpectedRevertERC20InsufficientAllowance() public {
+  function testTransferFromExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);
@@ -88,7 +88,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.transferFrom(_sender, _recipient, _amount);
   }
 
-  function test_transferFromTransferAllowlist() public {
+  function testTransferFromTransferAllowlist() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -100,7 +100,7 @@ contract UnitTestTransferFrom is Base {
     assertEq(_kpktoken.allowance(_sender, _mover), 1);
   }
 
-  function test_transferFromTransferAllowlistExpectedRevertERC20InsufficientAllowance() public {
+  function testTransferFromTransferAllowlistExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);
@@ -112,7 +112,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.transferFrom(_sender, _recipient, _amount);
   }
 
-  function test_transferFromWhenUnpaused() public {
+  function testTransferFromWhenUnpaused() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -124,7 +124,7 @@ contract UnitTestTransferFrom is Base {
     assertEq(_kpktoken.allowance(_sender, _mover), 1);
   }
 
-  function test_transferFromWhenUnpausedExpectedRevertERC20InsufficientAllowance() public {
+  function testTransferFromWhenUnpausedExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);

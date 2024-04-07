@@ -20,7 +20,7 @@ contract UnitTestRescueToken is Base {
     _dai.transfer(address(_kpktoken), _amount);
   }
 
-  function test_rescueToken() public {
+  function testRescueToken() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
     _kpktoken.rescueToken(_dai, _beneficiary, _amount - 1);
@@ -28,7 +28,7 @@ contract UnitTestRescueToken is Base {
     assertEq(_dai.balanceOf(address(_kpktoken)), 1);
   }
 
-  function test_rescueTokenExpectedRevertInsufficientBalanceToRescue() public {
+  function testRescueTokenExpectedRevertInsufficientBalanceToRescue() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
     vm.expectRevert(
@@ -37,7 +37,7 @@ contract UnitTestRescueToken is Base {
     _kpktoken.rescueToken(_dai, _beneficiary, _amount + 1);
   }
 
-  function test_rescueTokenExpectedRevertOwner() public {
+  function testRescueTokenExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));

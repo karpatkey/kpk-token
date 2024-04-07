@@ -8,7 +8,7 @@ import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 contract UnitTestTransferAllowance is Base {
   event TransferApproval(address indexed _sender, address indexed _recipient, uint256 _value);
 
-  function test_transferAllowance() public {
+  function testTransferAllowance() public {
     address _sender = makeAddr('sender');
     address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
@@ -20,7 +20,7 @@ contract UnitTestTransferAllowance is Base {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), _amount);
   }
 
-  function test_transferAllowanceExpectedRevertOwner() public {
+  function testTransferAllowanceExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     address _recipient = makeAddr('recipient');
     uint256 _amount = 100;
@@ -29,7 +29,7 @@ contract UnitTestTransferAllowance is Base {
     _kpktoken.approveTransfer(_randomAddress, _recipient, _amount);
   }
 
-  function test_transferAllowanceExpectedRevertTransferApprovalWhenUnpaused() public {
+  function testTransferAllowanceExpectedRevertTransferApprovalWhenUnpaused() public {
     uint256 _amount = 100;
     address _sender = makeAddr('sender');
     address _recipient = makeAddr('recipient');

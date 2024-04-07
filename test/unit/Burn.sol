@@ -18,7 +18,7 @@ contract UnitTestBurn is Base {
     _initialTotalSupply = _kpktoken.totalSupply();
   }
 
-  function test_BurnOwner() public {
+  function testBurnOwner() public {
     uint256 _initialBalance = _kpktoken.balanceOf(_owner);
     vm.startPrank(_owner);
     _kpktoken.burn(_amount);
@@ -26,7 +26,7 @@ contract UnitTestBurn is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount);
   }
 
-  function test_BurnAllowlisted() public {
+  function testBurnAllowlisted() public {
     vm.startPrank(_owner);
     _kpktoken.transferAllowlist(_holder, true);
     vm.startPrank(_holder);
@@ -35,7 +35,7 @@ contract UnitTestBurn is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_BurnTransferAllowance() public {
+  function testBurnTransferAllowance() public {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_holder, address(0), _amount);
     vm.startPrank(_holder);
@@ -45,7 +45,7 @@ contract UnitTestBurn is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_BurnExpectedRevertERC20InsufficientBalance() public {
+  function testBurnExpectedRevertERC20InsufficientBalance() public {
     vm.startPrank(_owner);
     _kpktoken.transferAllowlist(_holder, true);
     vm.startPrank(_holder);
@@ -55,7 +55,7 @@ contract UnitTestBurn is Base {
     _kpktoken.burn(_amountToMint + 1);
   }
 
-  function test_BurnExpectedRevertInsufficientTransferAllowance() public {
+  function testBurnExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_holder);
     vm.expectRevert(
       abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _holder, address(0), 0, _amount)

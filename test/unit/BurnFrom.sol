@@ -21,7 +21,7 @@ contract UnitTestBurnFrom is Base {
     _initialOwnerBalance = _kpktoken.balanceOf(_owner);
   }
 
-  function test_burnFromOwner() public {
+  function testBurnFromOwner() public {
     vm.startPrank(_owner);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_mover);
@@ -30,7 +30,7 @@ contract UnitTestBurnFrom is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_burnFromOwnerExpectedRevertERC20InsufficientAllowance() public {
+  function testBurnFromOwnerExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_owner);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_mover);
@@ -40,7 +40,7 @@ contract UnitTestBurnFrom is Base {
     _kpktoken.burnFrom(_owner, _amount + 1);
   }
 
-  function test_burnFromTransferAllowance() public {
+  function testBurnFromTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -53,7 +53,7 @@ contract UnitTestBurnFrom is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_burnFromInfiniteTransferAllowance() public {
+  function testBurnFromInfiniteTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -65,7 +65,7 @@ contract UnitTestBurnFrom is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_burnFromExpectedRevertInsufficientTransferAllowance() public {
+  function testBurnFromExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount + 1);
     vm.startPrank(_owner);
@@ -79,7 +79,7 @@ contract UnitTestBurnFrom is Base {
     _kpktoken.burnFrom(_sender, _amount + 1);
   }
 
-  function test_burnFromExpectedRevertERC20InsufficientAllowance() public {
+  function testBurnFromExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);
@@ -91,7 +91,7 @@ contract UnitTestBurnFrom is Base {
     _kpktoken.transferFrom(_sender, address(0), _amount);
   }
 
-  function test_burnFromTransferAllowlist() public {
+  function testBurnFromTransferAllowlist() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -103,7 +103,7 @@ contract UnitTestBurnFrom is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_burnFromTransferAllowlistExpectedRevertERC20InsufficientAllowance() public {
+  function testBurnFromTransferAllowlistExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);
@@ -115,7 +115,7 @@ contract UnitTestBurnFrom is Base {
     _kpktoken.burnFrom(_sender, _amount);
   }
 
-  function test_burnFromWhenUnpaused() public {
+  function testBurnFromWhenUnpaused() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
@@ -127,7 +127,7 @@ contract UnitTestBurnFrom is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply - _amount + 1);
   }
 
-  function test_burnFromWhenUnpausedExpectedRevertERC20InsufficientAllowance() public {
+  function testBurnFromWhenUnpausedExpectedRevertERC20InsufficientAllowance() public {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);

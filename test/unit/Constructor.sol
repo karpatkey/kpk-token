@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Base} from '.././Base.sol';
 
 contract UnitTestConstructor is Base {
-  function test_Constructor() public view {
+  function testConstructor() public view {
     assertEq(_kpktoken.owner(), _owner);
     assertEq(_kpktoken.totalSupply(), 1_000_000 * 10 ** _kpktoken.decimals());
     assertEq(_kpktoken.balanceOf(_owner), 1_000_000 * 10 ** _kpktoken.decimals());

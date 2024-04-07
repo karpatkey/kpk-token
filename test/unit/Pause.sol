@@ -5,14 +5,14 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 contract UnitTestPause is Base {
-  function test_UnpauseExpectedRevertOwner() public {
+  function testUnpauseExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _kpktoken.unpause();
   }
 
-  function test_Unpause() public {
+  function testUnpause() public {
     vm.prank(_owner);
     _kpktoken.unpause();
     assertEq(_kpktoken.paused(), false);

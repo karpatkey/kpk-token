@@ -5,7 +5,7 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 contract UnitTestMint is Base {
-  function test_Mint() public {
+  function testMint() public {
     address _holder = makeAddr('holder');
     uint256 _amount = 100;
     uint256 _initialTotalSupply = _kpktoken.totalSupply();
@@ -15,7 +15,7 @@ contract UnitTestMint is Base {
     assertEq(_kpktoken.totalSupply(), _initialTotalSupply + _amount);
   }
 
-  function test_MintExpectedRevertOwner() public {
+  function testMintExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
     address _holder = makeAddr('holder');
     uint256 _amount = 100;

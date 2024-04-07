@@ -15,7 +15,7 @@ contract UnitTestTransfer is Base {
     _kpktoken.transfer(_sender, _amount);
   }
 
-  function test_transferOwner() public {
+  function testTransferOwner() public {
     vm.startPrank(_owner);
     bool _result = _kpktoken.transfer(_recipient, _amount);
     assertEq(_result, true);
@@ -23,7 +23,7 @@ contract UnitTestTransfer is Base {
     assertEq(_kpktoken.balanceOf(_owner), _kpktoken.totalSupply() - 2 * _amount);
   }
 
-  function test_transferExpectedRevertInsufficientTransferAllowance() public {
+  function testTransferExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_sender);
     vm.expectRevert(
       abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
@@ -31,7 +31,7 @@ contract UnitTestTransfer is Base {
     _kpktoken.transfer(_recipient, _amount);
   }
 
-  function test_transfer() public {
+  function testTransfer() public {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
@@ -41,7 +41,7 @@ contract UnitTestTransfer is Base {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), 1);
   }
 
-  function test_transferInfiniteTransferAllowance() public {
+  function testTransferInfiniteTransferAllowance() public {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_sender, _recipient, type(uint256).max);
     vm.startPrank(_sender);
@@ -51,7 +51,7 @@ contract UnitTestTransfer is Base {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), type(uint256).max);
   }
 
-  function test_transferExpectedRevertTransferToTokenContract() public {
+  function testTransferExpectedRevertTransferToTokenContract() public {
     vm.startPrank(_owner);
     _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
@@ -59,7 +59,7 @@ contract UnitTestTransfer is Base {
     _kpktoken.transfer(address(_kpktoken), _amount);
   }
 
-  function test_transferWhenUnpaused() public {
+  function testTransferWhenUnpaused() public {
     vm.startPrank(_owner);
     _kpktoken.unpause();
     vm.startPrank(_sender);
