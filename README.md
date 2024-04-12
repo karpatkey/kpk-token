@@ -40,7 +40,7 @@ An allowlisted address is able to transfer and burn tokens by calling the `trans
 
 #### Transfer allowance
 
-When the contract is in paused state the owner can grant permission to an address to transfer tokens to a specified recipient by calling the `approveTransfer` method.
+When the contract is in paused state the owner can grant permission to an address to transfer tokens to a specified recipient via the `increaseTransferAllowance` and `decreaseTransferAllowance` methods.
 
 The `transferAllowance` method returns the amount of tokens a token holder is allowed to transfer to a specified recipient.
 
@@ -48,7 +48,7 @@ The `transferAllowance` method returns the amount of tokens a token holder is al
 
 The contract is unpaused by its' owner calling the `unpause` method. Once unpaused it cannot be paused again.
 
-Once unpaused the token is made fully fledged transferable, and the `transferAllowlist`, `transferAllowlisted`, `transferAllowance` and the `approveTransfer` methods are rendered obsolete.
+Once unpaused the token is made fully fledged transferable, and the `transferAllowlist`, `transferAllowlisted`, `transferAllowance`, `increaseTransferAllowance` and `decreaseTransferAllowance` methods are rendered obsolete.
 
 ### Supply
 
