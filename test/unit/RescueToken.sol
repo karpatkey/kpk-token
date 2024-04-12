@@ -32,7 +32,7 @@ contract UnitTestRescueToken is Base {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
     vm.expectRevert(
-      abi.encodeWithSelector(karpatkeyToken.InsufficientBalanceToRescue.selector, _dai, _amount + 1, _amount)
+      abi.encodeWithSelector(karpatkeyToken.InsufficientBalanceToRescue.selector, _dai, _amount, _amount + 1)
     );
     _kpktoken.rescueToken(_dai, _beneficiary, _amount + 1);
   }

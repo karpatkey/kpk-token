@@ -44,7 +44,7 @@ contract UnitTestBurnFrom is Base {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, address(0), _amount);
+    _kpktoken.increaseTransferAllowance(_sender, address(0), _amount);
     vm.startPrank(_mover);
     _kpktoken.burnFrom(_sender, _amount - 1);
     assertEq(_kpktoken.balanceOf(_sender), 1);
@@ -57,7 +57,7 @@ contract UnitTestBurnFrom is Base {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, address(0), type(uint256).max);
+    _kpktoken.increaseTransferAllowance(_sender, address(0), type(uint256).max);
     vm.startPrank(_mover);
     _kpktoken.burnFrom(_sender, _amount - 1);
     assertEq(_kpktoken.balanceOf(_sender), 1);
@@ -69,7 +69,7 @@ contract UnitTestBurnFrom is Base {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount + 1);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, address(0), _amount);
+    _kpktoken.increaseTransferAllowance(_sender, address(0), _amount);
     vm.startPrank(_mover);
     vm.expectRevert(
       abi.encodeWithSelector(
@@ -83,7 +83,7 @@ contract UnitTestBurnFrom is Base {
     vm.startPrank(_sender);
     _kpktoken.approve(_mover, _amount - 1);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, address(0), _amount);
+    _kpktoken.increaseTransferAllowance(_sender, address(0), _amount);
     vm.startPrank(_mover);
     vm.expectRevert(
       abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, _mover, _amount - 1, _amount)

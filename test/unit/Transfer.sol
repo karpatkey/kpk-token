@@ -33,7 +33,7 @@ contract UnitTestTransfer is Base {
 
   function testTransfer() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
+    _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
     _kpktoken.transfer(_recipient, _amount);
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
@@ -43,7 +43,7 @@ contract UnitTestTransfer is Base {
 
   function testTransferInfiniteTransferAllowance() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, _recipient, type(uint256).max);
+    _kpktoken.increaseTransferAllowance(_sender, _recipient, type(uint256).max);
     vm.startPrank(_sender);
     _kpktoken.transfer(_recipient, _amount);
     assertEq(_kpktoken.balanceOf(_recipient), _amount);
@@ -53,7 +53,7 @@ contract UnitTestTransfer is Base {
 
   function testTransferExpectedRevertTransferToTokenContract() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_sender, _recipient, _amount + 1);
+    _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
     vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferToTokenContract.selector));
     _kpktoken.transfer(address(_kpktoken), _amount);

@@ -5,16 +5,16 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 contract UnitTestOwnership is Base {
+  address internal _newOwner = makeAddr('newOwner');
+  address internal _randomAddress = makeAddr('randomAddress');
+
   function testTransferOwnership() public {
-    address _newOwner = makeAddr('newOwner');
     vm.prank(_owner);
     _kpktoken.transferOwnership(_newOwner);
     assertEq(_kpktoken.owner(), _newOwner);
   }
 
   function testTransferOwnershipExpectedRevertOwner() public {
-    address _randomAddress = makeAddr('randomAddress');
-    address _newOwner = makeAddr('newOwner');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _kpktoken.transferOwnership(_newOwner);
@@ -27,7 +27,6 @@ contract UnitTestOwnership is Base {
   }
 
   function test_rennounceOwnershipExpectedRevertOwner() public {
-    address _randomAddress = makeAddr('randomAddress');
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _kpktoken.renounceOwnership();

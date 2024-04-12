@@ -37,7 +37,7 @@ contract UnitTestBurn is Base {
 
   function testBurnTransferAllowance() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, address(0), _amount);
+    _kpktoken.increaseTransferAllowance(_holder, address(0), _amount);
     vm.startPrank(_holder);
     _kpktoken.burn(_amount - 1);
     assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
@@ -47,7 +47,7 @@ contract UnitTestBurn is Base {
 
   function testBurnInfiniteTransferAllowance() public {
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, address(0), type(uint256).max);
+    _kpktoken.increaseTransferAllowance(_holder, address(0), type(uint256).max);
     vm.startPrank(_holder);
     _kpktoken.burn(_amount - 1);
     assertEq(_kpktoken.balanceOf(_holder), _amountToMint - _amount + 1);
@@ -72,7 +72,7 @@ contract UnitTestBurn is Base {
     );
     _kpktoken.burn(_amount);
     vm.startPrank(_owner);
-    _kpktoken.approveTransfer(_holder, address(0), _amount - 1);
+    _kpktoken.increaseTransferAllowance(_holder, address(0), _amount - 1);
     vm.startPrank(_holder);
     vm.expectRevert(
       abi.encodeWithSelector(

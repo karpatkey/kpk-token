@@ -5,9 +5,10 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 contract UnitTestMint is Base {
+  address internal _holder = makeAddr('holder');
+  uint256 internal _amount = 100;
+
   function testMint() public {
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
     uint256 _initialTotalSupply = _kpktoken.totalSupply();
     vm.prank(_owner);
     _kpktoken.mint(_holder, _amount);
@@ -17,8 +18,6 @@ contract UnitTestMint is Base {
 
   function testMintExpectedRevertOwner() public {
     address _randomAddress = makeAddr('randomAddress');
-    address _holder = makeAddr('holder');
-    uint256 _amount = 100;
     vm.startPrank(_randomAddress);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     _kpktoken.mint(_holder, _amount);

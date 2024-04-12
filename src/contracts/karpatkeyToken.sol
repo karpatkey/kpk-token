@@ -51,7 +51,7 @@ contract karpatkeyToken is
    *  {approveTransfer}. `value` is the new transfer allowance.
    * @param sender Address that may be allowed to transfer tokens.
    * @param recipient Address to which tokens may be transferred.
-   * @param value New transfer allowance; maximum amount of tokens the owner is allowed to transfer.
+   * @param value New transfer allowance; maximum amount of tokens `sender` is allowed to transfer to `recipient`.
    */
   event TransferApproval(address indexed sender, address indexed recipient, uint256 value);
 
@@ -64,13 +64,29 @@ contract karpatkeyToken is
   /**
    * @notice Indicates a failure with the caller's transfer allowance for the specified recipient.
    * @dev Thrown by {_spendTransferAllowance} when {transfer}, {transferFrom}, {burn} or {burnFrom} are called
-   * and transfer allowance for `sender for `recipient` is insufficient to perform a transfer.
+   * and transfer allowance for `sender` for `recipient` is insufficient to perform a transfer.
    * @param sender Address that may be allowed to transfer tokens.
    * @param recipient Address to which tokens are intended to be transferred.
-   * @param _transferAllowance Maximum amount of tokens the owner is allowed to transfer to the recipient.
+   * @param _currentTransferAllowance Maximum amount of tokens `sender` is allowed to transfer to `recipient`.
    * @param needed Minimum transfer allowance required to perform the transfer.
    */
-  error InsufficientTransferAllowance(address sender, address recipient, uint256 _transferAllowance, uint256 needed);
+  error InsufficientTransferAllowance(
+    address sender, address recipient, uint256 _currentTransferAllowance, uint256 needed
+  );
+
+  /**
+   * @notice Indicates a failure when an attempt is made to decrease the transfer allowance that would result in
+   * a transfer allowance below zero.
+   * @dev Thrown by {decreaseTransferAllowance} when the transfer allowance of `sender` for `recipient` is
+   * less than `subtractedValue`.
+   * @param sender Address that is allowed to transfer tokens.
+   * @param recipient Address to which tokens are allowed to be transferred.
+   * @param _currentTransferAllowance Maximum amount of tokens `sender` is allowed to transfer to `recipient`.
+   * @param subtractedValue Amount to decrease the transfer allowance by.
+   */
+  error DecreasedTransferAllowanceBelowZero(
+    address sender, address recipient, uint256 _currentTransferAllowance, uint256 subtractedValue
+  );
 
   /**
    * @notice Indicates that the contract is unpaused when a transfer allowlisting is attempted.
@@ -103,10 +119,10 @@ contract karpatkeyToken is
    * @dev Thrown when {rescueToken} is called attempting to transfer a higher amount of the token to be
    * rescued than the token contract's balance.
    * @param token Address of the token to be transferred.
-   * @param value Amount of tokens to be transferred.
    * @param balance Token contract's balance of `token`.
+   * @param value Amount of tokens to be transferred.
    */
-  error InsufficientBalanceToRescue(IERC20 token, uint256 value, uint256 balance);
+  error InsufficientBalanceToRescue(IERC20 token, uint256 balance, uint256 value);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -155,20 +171,54 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Approves an account to transfer tokens to a specified recipient when the contract is paused.
-   * @dev Sets the transfer allowance for `sender` and `recipient` to `value`. Can only be called by the
+   * @notice Increases the transfer allowance for an account to transfer tokens to a specified recipient
+   * when the contract is paused.
+   * @dev Increases the transfer allowance for `sender` and `recipient` by `addedValue`. Can only be called by the
    * token contract's owner.
    * Reverts with {TransferApprovalWhenUnpaused} if called when the contract is unpaused.
    * See {_approveTransfer}.
    * @param sender Address that may be allowed to transfer tokens.
    * @param recipient Address to which tokens may be transferred.
-   * @param value Maximum amount of tokens the owner is allowed to transfer.
+   * @param addedValue Amount to increase the transfer allowance by.
    */
-  function approveTransfer(address sender, address recipient, uint256 value) public onlyOwner {
+  function increaseTransferAllowance(
+    address sender,
+    address recipient,
+    uint256 addedValue
+  ) public onlyOwner returns (bool success) {
     if (!paused()) {
       revert TransferApprovalWhenUnpaused();
     }
-    _approveTransfer(sender, recipient, value);
+    _approveTransfer(sender, recipient, _transferAllowances[sender][recipient] + addedValue);
+    return true;
+  }
+
+  /**
+   * @notice Decreases the transfer allowance for an account to transfer tokens to a specified recipient
+   * when the contract is paused.
+   * @dev Decreases the transfer allowance for `sender` and `recipient` by `subtractedValue`. Can only be called by the
+   * token contract's owner.
+   * Reverts with {DecreasedTransferAllowanceBelowZero} if the transfer allowance would be decreased below zero.
+   * Reverts with {TransferApprovalWhenUnpaused} if called when the contract is unpaused.
+   * See {_approveTransfer}.
+   * @param sender Address that may be allowed to transfer tokens.
+   * @param recipient Address to which tokens may be transferred.
+   * @param subtractedValue Amount to decrease the transfer allowance by.
+   */
+  function decreaseTransferAllowance(
+    address sender,
+    address recipient,
+    uint256 subtractedValue
+  ) public onlyOwner returns (bool success) {
+    if (!paused()) {
+      revert TransferApprovalWhenUnpaused();
+    }
+    uint256 currentTransferAllowance = _transferAllowances[sender][recipient];
+    if (currentTransferAllowance < subtractedValue) {
+      revert DecreasedTransferAllowanceBelowZero(sender, recipient, currentTransferAllowance, subtractedValue);
+    }
+    _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
+    return true;
   }
 
   /**
@@ -197,7 +247,7 @@ contract karpatkeyToken is
   function rescueToken(IERC20 token, address recipient, uint256 value) public onlyOwner returns (bool success) {
     uint256 balance = token.balanceOf(address(this));
     if (balance < value) {
-      revert InsufficientBalanceToRescue(token, value, balance);
+      revert InsufficientBalanceToRescue(token, balance, value);
     }
     token.transfer(recipient, value);
     return true;
