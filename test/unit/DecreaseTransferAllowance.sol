@@ -21,12 +21,14 @@ contract UnitTestDecreaseTransferAllowance is Base {
   }
 
   function testDecreaseTransferAllowance() public {
+    bool _success;
     vm.startPrank(_owner);
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), _amount);
     vm.expectEmit(address(_kpktoken));
     emit TransferApproval(_sender, _recipient, _amount - _amountDecrease);
-    _kpktoken.decreaseTransferAllowance(_sender, _recipient, _amountDecrease);
+    _success = _kpktoken.decreaseTransferAllowance(_sender, _recipient, _amountDecrease);
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), _amount - _amountDecrease);
+    assertEq(_success, true);
   }
 
   function testDecreaseTransferAllowanceExpectedRevertOwner() public {

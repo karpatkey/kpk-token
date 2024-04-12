@@ -10,6 +10,7 @@ contract UnitTestIncreaseTransferAllowance is Base {
   address internal _sender = makeAddr('sender');
   address internal _recipient = makeAddr('recipient');
   address internal _randomAddress = makeAddr('randomAddress');
+  bool internal _success;
 
   event TransferApproval(address indexed _sender, address indexed _recipient, uint256 _value);
 
@@ -18,8 +19,9 @@ contract UnitTestIncreaseTransferAllowance is Base {
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), 0);
     vm.expectEmit(address(_kpktoken));
     emit TransferApproval(_sender, _recipient, _amount);
-    _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount);
+    _success = _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount);
     assertEq(_kpktoken.transferAllowance(_sender, _recipient), _amount);
+    assertEq(_success, true);
   }
 
   function testIncreaseTransferAllowanceExpectedRevertOwner() public {
