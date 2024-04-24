@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity =0.8.20;
 
 import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
 import {Script} from 'forge-std/Script.sol';
