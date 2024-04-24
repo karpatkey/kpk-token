@@ -75,20 +75,6 @@ contract karpatkeyToken is
   );
 
   /**
-   * @notice Indicates a failure when an attempt is made to decrease the transfer allowance that would result in
-   * a transfer allowance below zero.
-   * @dev Thrown by {decreaseTransferAllowance} when the transfer allowance of `sender` for `recipient` is
-   * less than `subtractedValue`.
-   * @param sender Address that is allowed to transfer tokens.
-   * @param recipient Address to which tokens are allowed to be transferred.
-   * @param _currentTransferAllowance Maximum amount of tokens `sender` is allowed to transfer to `recipient`.
-   * @param subtractedValue Amount to decrease the transfer allowance by.
-   */
-  error DecreasedTransferAllowanceBelowZero(
-    address sender, address recipient, uint256 _currentTransferAllowance, uint256 subtractedValue
-  );
-
-  /**
    * @notice Indicates that the contract is unpaused when a transfer allowlisting is attempted.
    * @dev Thrown when {transferAllowlist} is called when the contract is unpaused.
    */
@@ -196,9 +182,9 @@ contract karpatkeyToken is
   /**
    * @notice Decreases the transfer allowance for an account to transfer tokens to a specified recipient
    * when the contract is paused.
-   * @dev Decreases the transfer allowance for `sender` and `recipient` by `subtractedValue`. Can only be called by the
-   * token contract's owner.
-   * Reverts with {DecreasedTransferAllowanceBelowZero} if the transfer allowance would be decreased below zero.
+   * @dev Decreases the transfer allowance for `sender` and `recipient` by `subtractedValue`. If
+   * `subtractedValue` is larger than or equal to the current transfer allowance, then the transfer allowance is set to
+   * 0. Can only be called by the token contract's owner.
    * Reverts with {TransferApprovalWhenUnpaused} if called when the contract is unpaused.
    * See {_approveTransfer}.
    * @param sender Address that may be allowed to transfer tokens.
@@ -214,10 +200,11 @@ contract karpatkeyToken is
       revert TransferApprovalWhenUnpaused();
     }
     uint256 currentTransferAllowance = _transferAllowances[sender][recipient];
-    if (currentTransferAllowance < subtractedValue) {
-      revert DecreasedTransferAllowanceBelowZero(sender, recipient, currentTransferAllowance, subtractedValue);
+    if (currentTransferAllowance <= subtractedValue) {
+      _approveTransfer(sender, recipient, 0);
+    } else {
+      _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
     }
-    _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
     return true;
   }
 

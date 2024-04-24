@@ -37,14 +37,10 @@ contract UnitTestDecreaseTransferAllowance is Base {
     _kpktoken.decreaseTransferAllowance(_randomAddress, _recipient, _amount);
   }
 
-  function testDecreaseTransferAllowanceExpectedRevertBelowZero() public {
+  function testDecreaseTransferAllowanceBelowZero() public {
     vm.startPrank(_owner);
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        karpatkeyToken.DecreasedTransferAllowanceBelowZero.selector, _sender, _recipient, _amount, _amount + 1
-      )
-    );
     _kpktoken.decreaseTransferAllowance(_sender, _recipient, _amount + 1);
+    assertEq(_kpktoken.transferAllowance(_sender, _recipient), 0);
   }
 
   function testDecreaseTransferAllowanceExpectedRevertTransferApprovalWhenUnpaused() public {
