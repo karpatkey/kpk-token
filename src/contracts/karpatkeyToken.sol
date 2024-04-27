@@ -203,7 +203,10 @@ contract karpatkeyToken is
     if (currentTransferAllowance <= subtractedValue) {
       _approveTransfer(sender, recipient, 0);
     } else {
-      _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
+      unchecked {
+        // Overflow not possible: subtractedValue < currentTransferAllowance.
+        _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
+      }
     }
     return true;
   }
