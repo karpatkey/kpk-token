@@ -15,6 +15,7 @@ import {ERC20VotesUpgradeable} from
   '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol';
 
 import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
+import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
  * @title karpatkey Token Contract
@@ -30,6 +31,8 @@ contract karpatkeyToken is
   ERC20PermitUpgradeable,
   ERC20VotesUpgradeable
 {
+  using SafeERC20 for IERC20;
+
   mapping(address account => bool allowlisted) private _transferAllowlisted;
   mapping(address account => mapping(address recipient => uint256 amount)) private _transferAllowances;
 
@@ -239,7 +242,7 @@ contract karpatkeyToken is
     if (balance < value) {
       revert InsufficientBalanceToRescue(token, balance, value);
     }
-    token.transfer(recipient, value);
+    token.safeTransfer(recipient, value);
     return true;
   }
 
