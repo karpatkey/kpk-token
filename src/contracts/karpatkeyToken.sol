@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity =0.8.20;
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
@@ -15,6 +15,7 @@ import {ERC20VotesUpgradeable} from
   '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol';
 
 import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
+import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
  * @title karpatkey Token Contract
@@ -30,6 +31,8 @@ contract karpatkeyToken is
   ERC20PermitUpgradeable,
   ERC20VotesUpgradeable
 {
+  using SafeERC20 for IERC20;
+
   mapping(address account => bool allowlisted) private _transferAllowlisted;
   mapping(address account => mapping(address recipient => uint256 amount)) private _transferAllowances;
 
@@ -72,20 +75,6 @@ contract karpatkeyToken is
    */
   error InsufficientTransferAllowance(
     address sender, address recipient, uint256 _currentTransferAllowance, uint256 needed
-  );
-
-  /**
-   * @notice Indicates a failure when an attempt is made to decrease the transfer allowance that would result in
-   * a transfer allowance below zero.
-   * @dev Thrown by {decreaseTransferAllowance} when the transfer allowance of `sender` for `recipient` is
-   * less than `subtractedValue`.
-   * @param sender Address that is allowed to transfer tokens.
-   * @param recipient Address to which tokens are allowed to be transferred.
-   * @param _currentTransferAllowance Maximum amount of tokens `sender` is allowed to transfer to `recipient`.
-   * @param subtractedValue Amount to decrease the transfer allowance by.
-   */
-  error DecreasedTransferAllowanceBelowZero(
-    address sender, address recipient, uint256 _currentTransferAllowance, uint256 subtractedValue
   );
 
   /**
@@ -196,9 +185,9 @@ contract karpatkeyToken is
   /**
    * @notice Decreases the transfer allowance for an account to transfer tokens to a specified recipient
    * when the contract is paused.
-   * @dev Decreases the transfer allowance for `sender` and `recipient` by `subtractedValue`. Can only be called by the
-   * token contract's owner.
-   * Reverts with {DecreasedTransferAllowanceBelowZero} if the transfer allowance would be decreased below zero.
+   * @dev Decreases the transfer allowance for `sender` and `recipient` by `subtractedValue`. If
+   * `subtractedValue` is larger than or equal to the current transfer allowance, then the transfer allowance is set to
+   * 0. Can only be called by the token contract's owner.
    * Reverts with {TransferApprovalWhenUnpaused} if called when the contract is unpaused.
    * See {_approveTransfer}.
    * @param sender Address that may be allowed to transfer tokens.
@@ -214,10 +203,14 @@ contract karpatkeyToken is
       revert TransferApprovalWhenUnpaused();
     }
     uint256 currentTransferAllowance = _transferAllowances[sender][recipient];
-    if (currentTransferAllowance < subtractedValue) {
-      revert DecreasedTransferAllowanceBelowZero(sender, recipient, currentTransferAllowance, subtractedValue);
+    if (currentTransferAllowance <= subtractedValue) {
+      _approveTransfer(sender, recipient, 0);
+    } else {
+      unchecked {
+        // Overflow not possible: subtractedValue < currentTransferAllowance.
+        _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
+      }
     }
-    _approveTransfer(sender, recipient, currentTransferAllowance - subtractedValue);
     return true;
   }
 
@@ -249,7 +242,7 @@ contract karpatkeyToken is
     if (balance < value) {
       revert InsufficientBalanceToRescue(token, balance, value);
     }
-    token.transfer(recipient, value);
+    token.safeTransfer(recipient, value);
     return true;
   }
 
