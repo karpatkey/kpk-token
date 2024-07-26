@@ -1,0 +1,109 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+import {karpatkeyToken} from './karpatkeyToken.sol';
+import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
+
+address constant BATCH_PLANNER_1 = 0x3466EB008EDD8d5052446293D1a7D212cb65C646;
+address constant TOKEN_VESTING_PLANS_1 = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F00C;
+
+address constant BATCH_PLANNER_155 = 0xd8B085f666299E52f24e637aB1076ba5C2c38045;
+address constant TOKEN_VESTING_PLANS_155 = 0x68b6986416c7A38F630cBc644a2833A0b78b3631;
+
+interface IBatchPlanner {
+  struct Plan {
+    address recipient;
+    uint256 amount;
+    uint256 start;
+    uint256 cliff;
+    uint256 rate;
+  }
+
+  /// @notice function to create a batch of vesting plans.
+  /// @dev the function will pull in the entire balance of totalAmount to the contract, increase the allowance and then via loop mint vesting plans
+  /// @param locker is the address of the lockup plan that the tokens will be locked in, and NFT plan provided to
+  /// @param token is the address of the token that is given and locked to the individuals
+  /// @param totalAmount is the total amount of tokens being locked, this has to equal the sum of all the individual amounts in the plans struct
+  /// @param plans is the array of plans that contain each plan parameters
+  /// @param period is the length of the period in seconds that tokens become unlocked / vested
+  /// @param vestingAdmin is the address of the vesting admin, that will be the same for all plans created
+  /// @param adminTransferOBO is an emergency toggle that allows the vesting admin to tranfer a vesting plan on behalf of a beneficiary
+  /// @param mintType is an internal tool to help with identifying front end applications
+  function batchVestingPlans(
+    address locker,
+    address token,
+    uint256 totalAmount,
+    Plan[] calldata plans,
+    uint256 period,
+    address vestingAdmin,
+    bool adminTransferOBO,
+    uint8 mintType
+  ) external;
+}
+
+contract KpkDeployer {
+  struct AllocationData {
+    address recipient;
+    uint256 amount;
+    uint256 start;
+    bool cliffBool;
+  }
+
+  /// @notice Address of the Karpatkey Governance Safe
+  address public KPK_GOV_SAFE = 0xbdAed5545b57b0b783D98c1Dd14C23975F2495bC;
+  /// @notice Address of the BatchPlanner contract
+  address public BATCH_PLANNER = BATCH_PLANNER_1;
+  /// @notice Address of the TokenVestingPlans contract
+  address public TOKEN_VESTING_PLANS = TOKEN_VESTING_PLANS_1;
+  /// @notice The duration of the 1.5 years cliff in seconds
+  uint256 public CLIFF_IN_SECONDS = 47_304_000;
+
+  uint256 public SECONDS_IN_TWO_YEARS = 63_072_000;
+
+  AllocationData[] public allocations;
+  IBatchPlanner.Plan[] public plans;
+
+  constructor() {
+    karpatkeyToken impl = new karpatkeyToken();
+    karpatkeyToken kpkToken = karpatkeyToken(
+      address(
+        new TransparentUpgradeableProxy(
+          address(impl),
+          KPK_GOV_SAFE,
+          abi.encodeWithSignature('initialize(address)', address(this)) // initialize the token
+        )
+      )
+    );
+
+    uint256 totalAllocation = 0;
+    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 24 ether, 1_636_675_200, true));
+    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 74 ether, 1_636_675_200, true));
+    allocations.push(
+      AllocationData(0x495f9Cd38351A199ac6ff3bB952D0a65DD464736, 12 ether, block.timestamp - 6 * 30 * 24 * 3600, true)
+    );
+
+    for (uint256 i = 0; i < allocations.length; i++) {
+      totalAllocation += allocations[i].amount;
+      plans.push(
+        IBatchPlanner.Plan(
+          allocations[i].recipient,
+          allocations[i].amount,
+          allocations[i].start,
+          allocations[i].cliffBool ? allocations[i].start + CLIFF_IN_SECONDS : allocations[i].start,
+          allocations[i].amount / SECONDS_IN_TWO_YEARS
+        )
+      );
+      kpkToken.increaseTransferAllowance(TOKEN_VESTING_PLANS, allocations[i].recipient, allocations[i].amount);
+    }
+    kpkToken.approve(BATCH_PLANNER, totalAllocation);
+    kpkToken.increaseTransferAllowance(BATCH_PLANNER, TOKEN_VESTING_PLANS, totalAllocation);
+
+    IBatchPlanner(BATCH_PLANNER).batchVestingPlans(
+      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, KPK_GOV_SAFE, true, 4
+    );
+
+    // Transfer the remaining tokens to the Karpatkey Governance Safe
+    kpkToken.transfer(KPK_GOV_SAFE, kpkToken.balanceOf(address(this)));
+    kpkToken.transferOwnership(KPK_GOV_SAFE);
+  }
+}
