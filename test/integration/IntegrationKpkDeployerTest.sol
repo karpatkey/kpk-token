@@ -51,9 +51,14 @@ contract IntegrationKpkDeployerTest is ForkTest {
     assertEq(owners, GOVERNANCE_SAFE_OWNERS);
     assertEq(threshold, THRESHOLD);
 
+    assertEq(entries[3].topics[0], keccak256('Upgraded(address)'));
     karpatkeyToken kpkToken = karpatkeyToken(entries[3].emitter);
     assertEq(kpkToken.owner(), governanceSafe);
 
+    assertEq(
+      entries[21].topics[0],
+      keccak256('PlanCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256,address,bool)')
+    );
     uint256 planId = uint256(entries[21].topics[1]);
     address planRecipient = abi.decode(abi.encodePacked(entries[21].topics[2]), (address));
     assertEq(planRecipient, tokenOwner);
