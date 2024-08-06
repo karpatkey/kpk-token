@@ -10,6 +10,16 @@ address constant TOKEN_VESTING_PLANS_1 = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F
 address constant BATCH_PLANNER_155 = 0xd8B085f666299E52f24e637aB1076ba5C2c38045;
 address constant TOKEN_VESTING_PLANS_155 = 0x68b6986416c7A38F630cBc644a2833A0b78b3631;
 
+address constant SAFE_PROXY_FACTORY = 0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2;
+
+interface ISafeProxyFactory {
+  function createProxyWithNonce(
+    address _singleton,
+    bytes memory initializer,
+    uint256 saltNonce
+  ) external returns (address proxy);
+}
+
 interface IBatchPlanner {
   struct Plan {
     address recipient;
@@ -49,8 +59,6 @@ contract KpkDeployer {
     bool cliffBool;
   }
 
-  /// @notice Address of the Karpatkey Governance Safe
-  address public KPK_GOV_SAFE = 0xbdAed5545b57b0b783D98c1Dd14C23975F2495bC;
   /// @notice Address of the BatchPlanner contract
   address public BATCH_PLANNER = BATCH_PLANNER_1;
   /// @notice Address of the TokenVestingPlans contract
@@ -60,16 +68,49 @@ contract KpkDeployer {
 
   uint256 public SECONDS_IN_TWO_YEARS = 63_072_000;
 
+  address[] public GOVERNANCE_SAFE_OWNERS = [
+    0x29C3E0263B6a2EF34E2c526e40Ce4B6C4542b52c,
+    0x7D7bd02d8c73234926b8db019252a15AE20B5121,
+    0x72DDE1ee3E91945DF444B9AE4B97B55D66FA858C,
+    0x5eaef45355c19D486c0Fed388F09B767307e70d4,
+    0x1a30824cfBb571Ca92Bc8e11BecfF0d9a42b5a49,
+    0xB312B894841F7fA1BC0Ff736D449E98AdD9c72E6,
+    0xF86BA96c6663D4cA552a2ADc24850c680ee471a5,
+    0xD539678E7dB4cD9e3320aE0baE36370D28F4c2C3,
+    0xc267513Eac792F31db3a87bd93E32cE7e9F8fCf2
+  ];
+  uint256 public THRESHOLD = 5;
+
   AllocationData[] public allocations;
   IBatchPlanner.Plan[] public plans;
 
   constructor() {
+    ISafeProxyFactory safeProxyFactory;
+    safeProxyFactory = ISafeProxyFactory(SAFE_PROXY_FACTORY);
+    address karpatkeyGovernanceSafe = address(
+      safeProxyFactory.createProxyWithNonce(
+        0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552,
+        abi.encodeWithSignature(
+          'setup(address[],uint256,address,bytes,address,address,uint256,address)',
+          GOVERNANCE_SAFE_OWNERS,
+          THRESHOLD,
+          address(0),
+          bytes('0x'),
+          0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4,
+          address(0),
+          0,
+          address(0)
+        ),
+        block.timestamp
+      )
+    );
+
     karpatkeyToken impl = new karpatkeyToken();
     karpatkeyToken kpkToken = karpatkeyToken(
       address(
         new TransparentUpgradeableProxy(
           address(impl),
-          KPK_GOV_SAFE,
+          karpatkeyGovernanceSafe,
           abi.encodeWithSignature('initialize(address)', address(this)) // initialize the token
         )
       )
@@ -99,11 +140,11 @@ contract KpkDeployer {
     kpkToken.increaseTransferAllowance(BATCH_PLANNER, TOKEN_VESTING_PLANS, totalAllocation);
 
     IBatchPlanner(BATCH_PLANNER).batchVestingPlans(
-      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, KPK_GOV_SAFE, true, 4
+      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, karpatkeyGovernanceSafe, true, 4
     );
 
     // Transfer the remaining tokens to the Karpatkey Governance Safe
-    kpkToken.transfer(KPK_GOV_SAFE, kpkToken.balanceOf(address(this)));
-    kpkToken.transferOwnership(KPK_GOV_SAFE);
+    kpkToken.transfer(karpatkeyGovernanceSafe, kpkToken.balanceOf(address(this)));
+    kpkToken.transferOwnership(karpatkeyGovernanceSafe);
   }
 }
