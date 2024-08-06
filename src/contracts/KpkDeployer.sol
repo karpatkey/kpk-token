@@ -118,9 +118,10 @@ contract KpkDeployer {
 
     uint256 totalAllocation = 0;
     allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 24 ether, 1_636_675_200, true));
-    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 74 ether, 1_636_675_200, true));
     allocations.push(
-      AllocationData(0x495f9Cd38351A199ac6ff3bB952D0a65DD464736, 12 ether, block.timestamp - 6 * 30 * 24 * 3600, true)
+      AllocationData(
+        0x495f9Cd38351A199ac6ff3bB952D0a65DD464736, 12 ether, block.timestamp - (365 + 10 * 30) * 24 * 3600, false
+      )
     );
 
     for (uint256 i = 0; i < allocations.length; i++) {
