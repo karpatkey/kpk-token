@@ -11,7 +11,7 @@
   "license": "MIT",
   "author": "karpatkey",
   "scripts": {
-    "build": "forge build",
+    "build": "forge build --via-ir",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "coverage": "forge coverage --match-contract Unit",
     "deploy:timelock:sepolia": "bash -c 'source .env && forge script DeployTimelockSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
