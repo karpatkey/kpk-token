@@ -117,12 +117,23 @@ contract KpkDeployer {
     );
 
     uint256 totalAllocation = 0;
-    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 24 ether, 1_636_675_200, true));
-    allocations.push(
-      AllocationData(
-        0x495f9Cd38351A199ac6ff3bB952D0a65DD464736, 12 ether, block.timestamp - (365 + 10 * 30) * 24 * 3600, false
-      )
-    );
+
+    allocations.push(AllocationData(0x0c538646c66294D5B7a4051b2F7b8C66edE86d5c, 22 ether, 1_626_038_149, false));
+    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 3 ether, 1_638_822_635, false));
+    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 6 ether, 1_639_019_390, false));
+    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 6785 ether, 1_639_003_638, false));
+    allocations.push(AllocationData(0x0c538646c66294D5B7a4051b2F7b8C66edE86d5c, 40_922 ether, 1_625_195_311, true));
+    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 5278 ether, 1_638_001_938, false));
+    allocations.push(AllocationData(0x2b761C22d8695376550c2c05e773EEE1d7508426, 46_753 ether, 1_625_290_887, true));
+    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 7791 ether, 1_636_997_605, false));
+    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 36 ether, 1_637_235_452, true));
+    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 56 ether, 1_637_844_815, true));
+    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 4 ether, 1_638_405_180, false));
+    allocations.push(AllocationData(0x2b761C22d8695376550c2c05e773EEE1d7508426, 23 ether, 1_623_664_107, false));
+    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 36 ether, 1_638_362_591, true));
+    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 4 ether, 1_638_961_142, false));
+    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 2 ether, 1_638_727_940, false));
+    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 2 ether, 1_638_341_136, false));
 
     for (uint256 i = 0; i < allocations.length; i++) {
       totalAllocation += allocations[i].amount;
@@ -144,8 +155,12 @@ contract KpkDeployer {
       TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, karpatkeyGovernanceSafe, true, 4
     );
 
-    // Transfer the remaining tokens to the Karpatkey Governance Safe
+    // Transfer the remaining tokens to the karpatkey Governance Safe
     kpkToken.transfer(karpatkeyGovernanceSafe, kpkToken.balanceOf(address(this)));
     kpkToken.transferOwnership(karpatkeyGovernanceSafe);
+  }
+
+  function getNumberOfGovernanceSafeOwners() public view returns (uint256) {
+    return GOVERNANCE_SAFE_OWNERS.length;
   }
 }
