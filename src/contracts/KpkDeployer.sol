@@ -68,6 +68,8 @@ contract KpkDeployer {
 
   uint256 public SECONDS_IN_TWO_YEARS = 63_072_000;
 
+  address public KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
+
   address[] public GOVERNANCE_SAFE_OWNERS = [
     0x29C3E0263B6a2EF34E2c526e40Ce4B6C4542b52c,
     0x7D7bd02d8c73234926b8db019252a15AE20B5121,
@@ -156,7 +158,8 @@ contract KpkDeployer {
     );
 
     // Transfer the remaining tokens to the karpatkey Governance Safe
-    kpkToken.transfer(karpatkeyGovernanceSafe, kpkToken.balanceOf(address(this)));
+    kpkToken.transfer(KARPATKEY_TREASURY_SAFE, kpkToken.balanceOf(address(this)));
+    kpkToken.transferAllowlist(KARPATKEY_TREASURY_SAFE, true);
     kpkToken.transferOwnership(karpatkeyGovernanceSafe);
   }
 

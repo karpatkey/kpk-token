@@ -41,6 +41,8 @@ contract IntegrationKpkDeployerTest is ForkTest {
 
     tokenVestingPlans = ITokenVestingPlans(kpkDeployer.TOKEN_VESTING_PLANS());
 
+    address KARPATKEY_TREASURY_SAFE = kpkDeployer.KARPATKEY_TREASURY_SAFE();
+
     ///------------------------------------------------------------------------
 
     Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -113,6 +115,7 @@ contract IntegrationKpkDeployerTest is ForkTest {
         vm.stopPrank();
       }
     }
+    assertEq(kpkToken.transferAllowlisted(KARPATKEY_TREASURY_SAFE), true);
   }
 }
 
