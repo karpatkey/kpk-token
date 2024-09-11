@@ -76,7 +76,7 @@ contract KpkDeployer {
     0x168330c41a77e6737BF32FD16a6f4cFa8B9aa11c,
     0xc07A080BC73E84c3AA8963A40Bd427c78Cf42AE5
   ];
-  uint256 public THRESHOLD = 5;
+  uint256 public THRESHOLD = 3; // FIXME: change to 5
 
   AllocationData[] public allocations;
   IBatchPlanner.Plan[] public plans;

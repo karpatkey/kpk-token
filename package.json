@@ -21,7 +21,7 @@
     "lint:sol-logic": "solhint -c .solhint.json 'src/**/*.sol' 'script/**/*.sol'",
     "lint:sol-tests": "solhint -c .solhint.tests.json 'test/**/*.sol'",
     "prepare": "husky install",
-    "test": "forge clean && forge test -vvvv",
+    "test": "forge clean && forge test --via-ir -vv",
     "test:deployer": "forge clean && forge test --match-contract Deployer --via-ir -vvvv",
     "test:integration": "forge clean && forge test --match-contract Integration --via-ir -vvv",
     "test:unit": "forge clean && forge test --match-contract Unit -vvv",
