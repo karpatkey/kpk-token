@@ -148,10 +148,11 @@ contract KpkDeployer {
           allocations[i].amount / SECONDS_IN_TWO_YEARS
         )
       );
-      kpkToken.increaseTransferAllowance(TOKEN_VESTING_PLANS, allocations[i].recipient, allocations[i].amount);
     }
+    kpkToken.transferAllowlist(TOKEN_VESTING_PLANS, true);
+    kpkToken.transferAllowlist(BATCH_PLANNER, true);
+
     kpkToken.approve(BATCH_PLANNER, totalAllocation);
-    kpkToken.increaseTransferAllowance(BATCH_PLANNER, TOKEN_VESTING_PLANS, totalAllocation);
 
     IBatchPlanner(BATCH_PLANNER).batchVestingPlans(
       TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, karpatkeyGovernanceSafe, true, 4
