@@ -71,15 +71,10 @@ contract KpkDeployer {
   address public KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
 
   address[] public GOVERNANCE_SAFE_OWNERS = [
-    0x29C3E0263B6a2EF34E2c526e40Ce4B6C4542b52c,
-    0x7D7bd02d8c73234926b8db019252a15AE20B5121,
-    0x72DDE1ee3E91945DF444B9AE4B97B55D66FA858C,
-    0x5eaef45355c19D486c0Fed388F09B767307e70d4,
-    0x1a30824cfBb571Ca92Bc8e11BecfF0d9a42b5a49,
-    0xB312B894841F7fA1BC0Ff736D449E98AdD9c72E6,
-    0xF86BA96c6663D4cA552a2ADc24850c680ee471a5,
-    0xD539678E7dB4cD9e3320aE0baE36370D28F4c2C3,
-    0xc267513Eac792F31db3a87bd93E32cE7e9F8fCf2
+    0x963728b46429c8415acCB03Ac5F5b2A36110d434,
+    0xA4FaD769c4c7Af161692D916DE51E6280Dd7d147,
+    0x168330c41a77e6737BF32FD16a6f4cFa8B9aa11c,
+    0xc07A080BC73E84c3AA8963A40Bd427c78Cf42AE5
   ];
   uint256 public THRESHOLD = 5;
 
@@ -158,7 +153,7 @@ contract KpkDeployer {
       TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, karpatkeyGovernanceSafe, true, 4
     );
 
-    // Transfer the remaining tokens to the karpatkey Governance Safe
+    // Transfer the remaining tokens to the karpatkey Treasury Safe
     kpkToken.transfer(KARPATKEY_TREASURY_SAFE, kpkToken.balanceOf(address(this)));
     kpkToken.transferAllowlist(KARPATKEY_TREASURY_SAFE, true);
     kpkToken.transferOwnership(karpatkeyGovernanceSafe);
