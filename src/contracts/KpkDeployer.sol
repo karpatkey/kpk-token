@@ -115,22 +115,38 @@ contract KpkDeployer {
 
     uint256 totalAllocation = 0;
 
-    allocations.push(AllocationData(0x0c538646c66294D5B7a4051b2F7b8C66edE86d5c, 22 ether, 1_626_038_149, false));
-    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 3 ether, 1_638_822_635, false));
-    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 6 ether, 1_639_019_390, false));
-    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 6785 ether, 1_639_003_638, false));
-    allocations.push(AllocationData(0x0c538646c66294D5B7a4051b2F7b8C66edE86d5c, 40_922 ether, 1_625_195_311, true));
-    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 5278 ether, 1_638_001_938, false));
-    allocations.push(AllocationData(0x2b761C22d8695376550c2c05e773EEE1d7508426, 46_753 ether, 1_625_290_887, true));
-    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 7791 ether, 1_636_997_605, false));
-    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 36 ether, 1_637_235_452, true));
-    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 56 ether, 1_637_844_815, true));
-    allocations.push(AllocationData(0x7F980d40A47446A49A12af4DF6f0E1486F23a766, 4 ether, 1_638_405_180, false));
-    allocations.push(AllocationData(0x2b761C22d8695376550c2c05e773EEE1d7508426, 23 ether, 1_623_664_107, false));
-    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 36 ether, 1_638_362_591, true));
-    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 4 ether, 1_638_961_142, false));
-    allocations.push(AllocationData(0xdAEc4b65BA27265f1A5c31f19F0396852A924Df4, 2 ether, 1_638_727_940, false));
-    allocations.push(AllocationData(0xAfFEbBd3632737c125aed963483BA63C8304e21B, 2 ether, 1_638_341_136, false));
+    allocations.push(AllocationData(0x9e951f9b138D57FAb3c3A0685C202F28804611B5, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x5076fA392D5564c95c1CB5cB683470aE3A1eAF9d, 1500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x39D787fdf7384597C7208644dBb6FDa1CcA4eBdf, 5000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xEea91102f78B2EcFc2eEc9868B6523504f9a5241, 2500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xEea91102f78B2EcFc2eEc9868B6523504f9a5241, 2500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x2bdC69b3E175154bD1E8D4Be50e1a51CffB721Bf, 500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xe705b1D26B85c9F9f91A3690079D336295F14F08, 2500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x22Be67f0715835526a06a227ba9c8AffA3F7FE5f, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xac140648435d03f784879cd789130F22Ef588Fcd, 500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xB1f881f47baB744E7283851bC090bAA626df931d, 500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xa361f522eC77c3213C7E435160a38DB1Fc45EDcc, 250 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xcE024Ad2997Aad42112E789188da62E4bE5bA05D, 200 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x99E4256100552Bfc3a22AC92561f26cb9637bEA1, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x3a3eE61F7c6e1994a2001762250A5E17B2061b6d, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x556Bd626535022cB854e297ADa4F46807da54B2c, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x0306E34A687798A63A42B506F32CB5A57c95D187, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x436f2b24D1052F14B4a7e095438a22b09F706C21, 200 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x19dBf30453d8528bFD0be878535e15715CFFF066, 250 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xE91F64cA1da165Ca8437686B69A022156550837B, 100 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x6F86e116C2E2fAe0404276ca1C2aA1F074626396, 200 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xa31f48CF048af2c6851c50E7d60a32296A01119b, 200 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x75dbc56888c676626a7Ec0e128af46f6F5B494d2, 750 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xc174b29C50d14303063a0E802B325a676AE2a853, 10_000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xcb68110C43C97b6051FEd5e2Bacc2814aDaD1688, 250 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x371880c69B9442888318e82B079BC41d85f03979, 1875 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x56264e5ec5215C3974Cfb550D3aeFA6720f5eE9D, 1875 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x418592317dCEc824603c6840E51E9c2f2B5c8156, 1000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x6e0a1dDAD894e6466d405Bb73377F0A257278D74, 2000 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xFB014896319E1650FD1426A6A4f070e9286f46F1, 1250 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x22915193F2BDe0DA4dfE317BfCE4Ddf1b6f13DE9, 500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0x74fEa3FB0eD030e9228026E7F413D66186d3D107, 500 ether, 1_718_968_487, false));
+    allocations.push(AllocationData(0xE61A0e34a63f121351DAd37Cd96784165A22AA5E, 250 ether, 1_718_968_487, false));
 
     for (uint256 i = 0; i < allocations.length; i++) {
       totalAllocation += allocations[i].amount;
