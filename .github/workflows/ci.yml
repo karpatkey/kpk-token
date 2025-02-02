@@ -16,7 +16,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile --network-concurrency 1
 
-      - name: Precompile using 0.8.14 and via-ir=false
+      - name: Precompile using via-ir=true
         run: yarn build
 
       - name: Create env file
@@ -50,7 +50,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile --network-concurrency 1
 
-      - name: Precompile using 0.8.14 and via-ir=false
+      - name: Precompile via-ir=true
         run: yarn build
 
       - name: Create env file
@@ -88,7 +88,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
 
       - name: Use Node.js
         uses: actions/setup-node@v3
