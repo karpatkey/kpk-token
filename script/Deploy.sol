@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.20;
 
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {Upgrades} from '@openzeppelin/foundry-upgrades/src/Upgrades.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 import {Script} from 'forge-std/Script.sol';
-import {Upgrades} from 'openzeppelin-foundry-upgrades/Upgrades.sol';
 
 abstract contract DeployToken is Script {
-  function _deploy(address _initialOwner) internal {
+  function _deploy(
+    address _initialOwner
+  ) internal {
     vm.startBroadcast();
-    Upgrades.deployTransparentProxy(
-      'karpatkeyToken.sol', _initialOwner, abi.encodeCall(karpatkeyToken.initialize, _initialOwner)
-    );
+    Upgrades.deployTransparentProxy('kpkToken.sol', _initialOwner, abi.encodeCall(KpkToken.initialize, _initialOwner));
     vm.stopBroadcast();
   }
 }

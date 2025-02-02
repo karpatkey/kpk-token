@@ -2,7 +2,7 @@
 pragma solidity =0.8.20;
 
 import {Base} from '.././Base.sol';
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract UnitTestTransfer is Base {
   address internal _sender = makeAddr('sender');
@@ -26,7 +26,7 @@ contract UnitTestTransfer is Base {
   function testTransferExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_sender);
     vm.expectRevert(
-      abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
+      abi.encodeWithSelector(KpkToken.InsufficientTransferAllowance.selector, _sender, _recipient, 0, _amount)
     );
     _kpktoken.transfer(_recipient, _amount);
   }
@@ -55,7 +55,7 @@ contract UnitTestTransfer is Base {
     vm.startPrank(_owner);
     _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount + 1);
     vm.startPrank(_sender);
-    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferToTokenContract.selector));
+    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferToTokenContract.selector));
     _kpktoken.transfer(address(_kpktoken), _amount);
   }
 
