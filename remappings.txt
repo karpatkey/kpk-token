@@ -5,5 +5,8 @@ isolmate/=node_modules/isolmate/src
 contracts/=src/contracts
 interfaces/=src/interfaces
 
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@openzeppelin/foundry-upgrades/src/=node_modules/@openzeppelin/foundry-upgrades/src/
+
+

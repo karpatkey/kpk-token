@@ -22,7 +22,11 @@
     "lint:sol-tests": "solhint -c .solhint.tests.json 'test/**/*.sol'",
     "prepare": "husky install",
     "test": "forge clean && forge test --via-ir -vv",
-    "test:deployer": "forge clean && forge test --match-contract Deployer --via-ir -vvvv",
+    "test:deployer": "forge clean && forge test --match-contract IntegrationTestKpkDeployer2 --via-ir -vvvv | less -R",
+    "test:deployer2:mainnet": "forge clean && forge test --match-contract IntegrationTestKpkDeployer2 --via-ir -vvvv",
+    "test:deployer2:mainnet:log-file": "forge clean && forge test --match-contract IntegrationTestKpkDeployer2 --via-ir -vvvv > mainnet_logs.txt 2>&1",
+    "test:deployer2:sepolia": "forge clean && forge test --match-contract IntegrationTestKpkDeployer2Sepolia --via-ir -vvvv",
+    "test:deployer2:sepolia:log-file": "forge clean && forge test --match-contract IntegrationTestKpkDeployer2Sepolia --via-ir -vvvv > sepolia_logs.txt 2>&1",
     "test:integration": "forge clean && forge test --match-contract Integration --via-ir -vvv",
     "test:unit": "forge clean && forge test --match-contract Unit -vvv",
     "test:unit:deep": "FOUNDRY_FUZZ_RUNS=5000 yarn test:unit"
@@ -34,6 +38,9 @@
     "package.json": "sort-package-json"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "5.0.2",
+    "@openzeppelin/contracts-upgradeable": "5.0.2",
+    "@openzeppelin/foundry-upgrades": "v0.3.6",
     "isolmate": "github:defi-wonderland/isolmate#59e1804"
   },
   "devDependencies": {
