@@ -21,7 +21,7 @@ The initial total supply will be 1 billion KPK. The token will be non-transferab
 
 ### Ownership
 
-The kpk token contract is ownable and the initial token supply is minted to the specified owner (the karpatkey DAO). Ownership can be transferred and renounced at any point.
+The kpk token contract is ownable and the initial token supply is minted to the specified owner (the kpk DAO). Ownership can be transferred and renounced at any point.
 
 ### Transferability
 
