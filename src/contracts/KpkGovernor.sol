@@ -22,7 +22,7 @@ import {
 
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
-contract MyGovernor is
+contract KpkGovernor is
   Initializable,
   GovernorUpgradeable,
   GovernorSettingsUpgradeable,
@@ -55,30 +55,21 @@ contract MyGovernor is
     return super.votingPeriod();
   }
 
-  function quorum(uint256 blockNumber)
-    public
-    view
-    override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
-    returns (uint256)
-  {
+  function quorum(
+    uint256 blockNumber
+  ) public view override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable) returns (uint256) {
     return super.quorum(blockNumber);
   }
 
-  function state(uint256 proposalId)
-    public
-    view
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
-    returns (ProposalState)
-  {
+  function state(
+    uint256 proposalId
+  ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
     return super.state(proposalId);
   }
 
-  function proposalNeedsQueuing(uint256 proposalId)
-    public
-    view
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
-    returns (bool)
-  {
+  function proposalNeedsQueuing(
+    uint256 proposalId
+  ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (bool) {
     return super.proposalNeedsQueuing(proposalId);
   }
 
