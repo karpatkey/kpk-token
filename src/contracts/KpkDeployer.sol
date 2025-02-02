@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {karpatkeyToken} from './karpatkeyToken.sol';
 import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 address constant BATCH_PLANNER_1 = 0x3466EB008EDD8d5052446293D1a7D212cb65C646;
 address constant TOKEN_VESTING_PLANS_1 = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F00C;
@@ -107,8 +107,8 @@ contract KpkDeployer {
       )
     );
 
-    karpatkeyToken impl = new karpatkeyToken();
-    karpatkeyToken kpkToken = karpatkeyToken(
+    KpkToken impl = new KpkToken();
+    KpkToken kpkToken = KpkToken(
       address(
         new TransparentUpgradeableProxy(
           address(impl),

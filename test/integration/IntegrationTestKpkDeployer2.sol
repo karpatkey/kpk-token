@@ -3,11 +3,11 @@ pragma solidity 0.8.20;
 
 import {ForkTest} from './ForkTest.sol';
 
-import {KpkDeployer} from 'contracts/KpkDeployer.sol';
+import {KpkDeployer} from 'contracts/KpkDeployer2.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 import {Vm} from 'forge-std/Test.sol';
 
-contract IntegrationKpkDeployerTest is ForkTest {
+contract IntegrationTestKpkDeployer2Mainnet is ForkTest {
   ICreateCall deployerSafe;
   ITokenVestingPlans tokenVestingPlans;
 
@@ -19,7 +19,7 @@ contract IntegrationKpkDeployerTest is ForkTest {
   }
 
   function testDeployer() public {
-    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer.sol:KpkDeployer'));
+    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer2.sol:KpkDeployer'));
 
     vm.recordLogs();
 
@@ -107,9 +107,13 @@ contract IntegrationKpkDeployerTest is ForkTest {
           kpkToken.balanceOf(tokenOwner),
           initialBalance
             + (
-              (block.timestamp - start) > SECONDS_IN_TWO_YEARS
-                ? amount
-                : (block.timestamp < cliff ? 0 : amount / SECONDS_IN_TWO_YEARS * (block.timestamp - start))
+              block.timestamp < cliff
+                ? 0
+                : (
+                  (block.timestamp - start) > SECONDS_IN_TWO_YEARS
+                    ? amount
+                    : (amount / SECONDS_IN_TWO_YEARS * (block.timestamp - start))
+                )
             )
         );
         vm.stopPrank();

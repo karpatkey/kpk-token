@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ForkTest} from './ForkTest.sol';
+import {ForkTestSepolia} from './ForkTest.sol';
 
-import {KpkDeployer} from 'contracts/KpkDeployer.sol';
+import {KpkDeployer} from 'contracts/KpkDeployer2Sepolia.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 import {Vm} from 'forge-std/Test.sol';
 
-contract IntegrationKpkDeployerTest is ForkTest {
+contract IntegrationTestKpkDeployer2Sepolia is ForkTestSepolia {
   ICreateCall deployerSafe;
   ITokenVestingPlans tokenVestingPlans;
 
@@ -19,7 +19,7 @@ contract IntegrationKpkDeployerTest is ForkTest {
   }
 
   function testDeployer() public {
-    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer.sol:KpkDeployer'));
+    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer2Sepolia.sol:KpkDeployer'));
 
     vm.recordLogs();
 
