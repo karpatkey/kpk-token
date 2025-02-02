@@ -13,7 +13,7 @@
 
 KPK is a utility token, designed for the purpose of facilitating and delivering alignment across the different stakeholders in kpk DAO, to push collectively towards the project’s mission. 
 
-The primary utility of the token will be the governance of our DAO. More specifically, KPK will used to define treasury parameters and budgets, and to authorise large initaitives like OTC deals, buybacks and other strategic investments.
+The primary utility of the token will be the governance of our DAO. More specifically, KPK will be used to define treasury parameters and budgets, and to authorise large initiatives like OTC deals, buybacks and other strategic investments.
 
 The initial total supply will be 1 billion KPK. The token will be non-transferable at launch, and will remain so for the foreseeable future, unless and until token transferability is enabled by the DAO.
 
