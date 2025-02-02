@@ -13,3 +13,14 @@ contract ForkTest is Test {
     vm.selectFork(fork);
   }
 }
+
+contract ForkTestSepolia is Test {
+  uint256 fork;
+  /// @dev set BASE_RPC_URL in .env to run mainnet tests
+  string RPC_URL = vm.envString('SEPOLIA_RPC');
+
+  function _forkSetupBefore() public {
+    fork = vm.createFork(RPC_URL);
+    vm.selectFork(fork);
+  }
+}
