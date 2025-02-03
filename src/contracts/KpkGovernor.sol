@@ -4,23 +4,21 @@ pragma solidity =0.8.20;
 
 import {GovernorUpgradeable} from '@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol';
 
+import {TimelockControllerUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgradeable.sol';
 import {GovernorCountingSimpleUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol';
 import {GovernorSettingsUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol';
-
-import {
-  GovernorTimelockControlUpgradeable,
-  TimelockControllerUpgradeable
-} from '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol';
+import {GovernorTimelockControlUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol';
 import {GovernorVotesQuorumFractionUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol';
-import {
-  GovernorVotesUpgradeable,
-  IVotes
-} from '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol';
+import {GovernorVotesUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol';
 
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import {IVotes} from '@openzeppelin/contracts/governance/utils/IVotes.sol';
 
 contract KpkGovernor is
   Initializable,
@@ -37,7 +35,7 @@ contract KpkGovernor is
   }
 
   function initialize(IVotes _token, TimelockControllerUpgradeable _timelock) public initializer {
-    __Governor_init('MyGovernor');
+    __Governor_init('kpk Governor');
     __GovernorSettings_init(7200, /* 1 day */ 50_400, /* 1 week */ 0);
     __GovernorCountingSimple_init();
     __GovernorVotes_init(_token);
