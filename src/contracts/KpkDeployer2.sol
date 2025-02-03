@@ -1,24 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {TimelockController} from '@openzeppelin/contracts/governance/TimelockController.sol';
 import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
 import {KpkGovernor} from 'contracts/KpkGovernor.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
-import {TimelockController} from 'contracts/TimelockController.sol';
+//import {TimelockController} from 'contracts/TimelockController.sol'; In case we wanna use an upgradeable version
 
 address constant BATCH_PLANNER = 0x3466EB008EDD8d5052446293D1a7D212cb65C646; // Mainnet address
-
-address constant SAFE_PROXY_FACTORY = 0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2;
-
 address constant GNOSIS_DAO_TREASURY_SAFE = 0x849D52316331967b6fF1198e5E32A0eB168D039d;
-
-interface ISafeProxyFactory {
-  function createProxyWithNonce(
-    address _singleton,
-    bytes memory initializer,
-    uint256 saltNonce
-  ) external returns (address proxy);
-}
 
 interface IBatchPlanner {
   struct Plan {
@@ -66,20 +56,9 @@ contract KpkDeployer {
 
   address public TOKEN_VESTING_PLANS = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F00C; // Mainnet address
 
-  address public KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C; //Dummy deployer
+  address public KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
 
-  address[] public GOVERNANCE_SAFE_OWNERS = [
-    0x963728b46429c8415acCB03Ac5F5b2A36110d434,
-    0xA4FaD769c4c7Af161692D916DE51E6280Dd7d147,
-    0x168330c41a77e6737BF32FD16a6f4cFa8B9aa11c,
-    0xc07A080BC73E84c3AA8963A40Bd427c78Cf42AE5,
-    0xF971D72b812D0Df2Db7D6FeD49c0f5d3CF009411,
-    0x0D50c737f102703fdBac7A6829EaD7FE3b20561A,
-    0xF0a88b5aB06E56e0a1e4c6259f4986551200Bb3c,
-    0x1a30824cfBb571Ca92Bc8e11BecfF0d9a42b5a49,
-    0x72DDE1ee3E91945DF444B9AE4B97B55D66FA858C
-  ];
-  uint256 public THRESHOLD = 5;
+  address public kpkTokenAddress;
 
   AllocationData[] public allocations;
   IBatchPlanner.Plan[] public plans;
@@ -87,43 +66,31 @@ contract KpkDeployer {
   uint256 public MIN_DELAY = 60;
   address[] public PROPOSERS;
   address[] public EXECUTORS;
-  address public TIMELOCK_CONTROLLER_PROXY_ADMIN;
 
   constructor() {
-    ISafeProxyFactory safeProxyFactory;
-    safeProxyFactory = ISafeProxyFactory(SAFE_PROXY_FACTORY);
-    address karpatkeyGovernanceSafe = address(
-      safeProxyFactory.createProxyWithNonce(
-        0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552,
-        abi.encodeWithSignature(
-          'setup(address[],uint256,address,bytes,address,address,uint256,address)',
-          GOVERNANCE_SAFE_OWNERS,
-          THRESHOLD,
-          address(0),
-          bytes('0x'),
-          0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4,
-          address(0),
-          0,
-          address(0)
-        ),
-        block.timestamp
-      )
-    );
+    /*The Proposer role is in charge of queueing operations: this is the role the Governor instance should be
+    granted, and it should likely be the only proposer in the system.
 
-    KpkToken kpkTokenImpl = new KpkToken();
-    address kpkTokenProxyAddress = address(
-      new TransparentUpgradeableProxy(
-        address(kpkTokenImpl), karpatkeyGovernanceSafe, abi.encodeWithSignature('initialize(address)', address(this))
-      )
-    );
+    The Executor role is in charge of executing already available operations: we can assign this role to the
+    special zero address to allow anyone to execute (if operations can be particularly time sensitive, the
+    Governor should be made Executor instead).
 
-    KpkToken kpkToken = KpkToken(kpkTokenProxyAddress);
+    Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive
+    role that will be granted automatically to the timelock itself, and optionally to a second account, which can
+    be used for ease of setup but should promptly renounce the role.
+    
+    See https://docs.openzeppelin.com/contracts/5.x/governance#timelock
+    */
+    EXECUTORS.push(address(0));
+    // The Governor contract instance shall be later granted the Proposer role, that's why the KpkDeployer is
+    //temporarily set as an admin of of the TimelockController
+    // Should we assign an alternative admin (instead of address(0))? The Foundation safe?
 
-    PROPOSERS.push(karpatkeyGovernanceSafe);
-    EXECUTORS.push(karpatkeyGovernanceSafe);
-    TIMELOCK_CONTROLLER_PROXY_ADMIN = karpatkeyGovernanceSafe;
+    TimelockController timelockController = new TimelockController(MIN_DELAY, PROPOSERS, EXECUTORS, address(this));
 
-    TimelockController timelockControllerImpl = new TimelockController();
+    // Do we want this one to be upgradeable? The following code would accomplish that. What's the proxy admin then?
+
+    /* TimelockController timelockControllerImpl = new TimelockController();
     address timelockControllerProxyAddress = address(
       new TransparentUpgradeableProxy(
         address(timelockControllerImpl),
@@ -136,20 +103,31 @@ contract KpkDeployer {
           address(0) // Do we want an optional admin?
         )
       )
-    );
+    ); */
 
-    TimelockController timelockController = TimelockController(payable(timelockControllerProxyAddress));
+    KpkToken kpkTokenImpl = new KpkToken();
+    address kpkTokenProxyAddress = address(
+      new TransparentUpgradeableProxy(
+        address(kpkTokenImpl), // Implementation
+        address(timelockController), // Proxy admin
+        abi.encodeWithSignature('initialize(address)', address(this)) // The owner temporarily is the KpkDeployer itself
+      )
+    );
+    KpkToken kpkToken = KpkToken(kpkTokenProxyAddress);
+    kpkTokenAddress = address(kpkToken);
 
     KpkGovernor kpkGovernorImpl = new KpkGovernor();
     address kpkGovernorProxyAddress = address(
       new TransparentUpgradeableProxy(
-        address(kpkGovernorImpl),
-        karpatkeyGovernanceSafe,
+        address(kpkGovernorImpl), // Implementation
+        address(timelockController), // Proxy admin
         abi.encodeWithSignature('initialize(address,address)', address(kpkToken), address(timelockController))
       )
     );
-
     KpkGovernor kpkGovernor = KpkGovernor(payable(kpkGovernorProxyAddress));
+
+    timelockController.grantRole(timelockController.PROPOSER_ROLE(), address(kpkGovernor));
+    timelockController.renounceRole(timelockController.DEFAULT_ADMIN_ROLE(), address(this));
 
     uint256 totalAllocation = 0;
 
@@ -176,16 +154,12 @@ contract KpkDeployer {
     kpkToken.approve(BATCH_PLANNER, totalAllocation);
 
     IBatchPlanner(BATCH_PLANNER).batchVestingPlans(
-      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, karpatkeyGovernanceSafe, true, 4
-    );
+      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, KARPATKEY_TREASURY_SAFE, true, 4
+    ); // Should the admin be the Foundation safe? I believe so...
 
     // Transfer the remaining tokens to the karpatkey Treasury Safe
     kpkToken.transfer(KARPATKEY_TREASURY_SAFE, kpkToken.balanceOf(address(this)));
     kpkToken.transferAllowlist(KARPATKEY_TREASURY_SAFE, true);
-    kpkToken.transferOwnership(karpatkeyGovernanceSafe);
-  }
-
-  function getNumberOfGovernanceSafeOwners() public view returns (uint256) {
-    return GOVERNANCE_SAFE_OWNERS.length;
+    kpkToken.transferOwnership(address(timelockController)); // Is this correct?
   }
 }
