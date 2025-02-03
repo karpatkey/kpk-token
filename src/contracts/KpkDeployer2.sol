@@ -6,61 +6,21 @@ import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transpa
 import {KpkGovernor} from 'contracts/KpkGovernor.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 //import {TimelockController} from 'contracts/TimelockController.sol'; In case we wanna use an upgradeable version
-
-address constant BATCH_PLANNER = 0x3466EB008EDD8d5052446293D1a7D212cb65C646; // Mainnet address
-address constant GNOSIS_DAO_TREASURY_SAFE = 0x849D52316331967b6fF1198e5E32A0eB168D039d;
-
-interface IBatchPlanner {
-  struct Plan {
-    address recipient;
-    uint256 amount;
-    uint256 start;
-    uint256 cliff;
-    uint256 rate;
-  }
-
-  /// @notice function to create a batch of vesting plans.
-  /// @dev the function will pull in the entire balance of totalAmount to the contract, increase the allowance and then via loop mint vesting plans
-  /// @param locker is the address of the lockup plan that the tokens will be locked in, and NFT plan provided to
-  /// @param token is the address of the token that is given and locked to the individuals
-  /// @param totalAmount is the total amount of tokens being locked, this has to equal the sum of all the individual amounts in the plans struct
-  /// @param plans is the array of plans that contain each plan parameters
-  /// @param period is the length of the period in seconds that tokens become unlocked / vested
-  /// @param vestingAdmin is the address of the vesting admin, that will be the same for all plans created
-  /// @param adminTransferOBO is an emergency toggle that allows the vesting admin to tranfer a vesting plan on behalf of a beneficiary
-  /// @param mintType is an internal tool to help with identifying front end applications
-  function batchVestingPlans(
-    address locker,
-    address token,
-    uint256 totalAmount,
-    Plan[] calldata plans,
-    uint256 period,
-    address vestingAdmin,
-    bool adminTransferOBO,
-    uint8 mintType
-  ) external;
-}
+import {
+  BATCH_PLANNER,
+  CLIFF_IN_SECONDS,
+  GNOSIS_DAO_TREASURY_SAFE,
+  IBatchPlanner,
+  KARPATKEY_TREASURY_SAFE,
+  SECONDS_IN_A_YEAR,
+  SECONDS_IN_TWO_YEARS,
+  TOKEN_VESTING_PLANS
+} from './kpkDeployerLib.sol';
 
 contract KpkDeployer {
-  struct AllocationData {
-    address recipient;
-    uint256 amount;
-    uint256 start;
-    bool cliffBool;
-  }
-
-  /// @notice The duration of the 1.5 years cliff in seconds
-  uint256 public CLIFF_IN_SECONDS = 47_304_000;
-  uint256 public SECONDS_IN_A_YEAR = 31_536_000;
-  uint256 public SECONDS_IN_TWO_YEARS = 63_072_000;
-
-  address public TOKEN_VESTING_PLANS = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F00C; // Mainnet address
-
-  address public KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
-
   address public kpkTokenAddress;
 
-  AllocationData[] public allocations;
+  IBatchPlanner.AllocationData[] public allocations;
   IBatchPlanner.Plan[] public plans;
 
   uint256 public MIN_DELAY = 60;
@@ -78,7 +38,7 @@ contract KpkDeployer {
     Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive
     role that will be granted automatically to the timelock itself, and optionally to a second account, which can
     be used for ease of setup but should promptly renounce the role.
-    
+
     See https://docs.openzeppelin.com/contracts/5.x/governance#timelock
     */
     EXECUTORS.push(address(0));
@@ -131,9 +91,11 @@ contract KpkDeployer {
 
     uint256 totalAllocation = 0;
 
-    allocations.push(AllocationData(GNOSIS_DAO_TREASURY_SAFE, 25_000_000 ether, 1_642_075_200, false));
+    allocations.push(IBatchPlanner.AllocationData(GNOSIS_DAO_TREASURY_SAFE, 25_000_000 ether, 1_642_075_200, false));
     allocations.push(
-      AllocationData(GNOSIS_DAO_TREASURY_SAFE, 75_000_000 ether, block.timestamp + SECONDS_IN_A_YEAR, false)
+      IBatchPlanner.AllocationData(
+        GNOSIS_DAO_TREASURY_SAFE, 75_000_000 ether, block.timestamp + SECONDS_IN_A_YEAR, false
+      )
     );
 
     for (uint256 i = 0; i < allocations.length; i++) {

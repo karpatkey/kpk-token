@@ -5,17 +5,24 @@ import {ForkTest} from './ForkTest.sol';
 
 import {KpkDeployer} from 'contracts/KpkDeployer.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
+
+import {KpkTokenDeploymentConfig} from 'contracts/KpkTokenDeploymentConfig.sol';
+import {
+  CLIFF_IN_SECONDS,
+  ISafeCreateCall,
+  ITokenVestingPlans,
+  SAFE_CREATE_CALL,
+  SECONDS_IN_TWO_YEARS
+} from 'contracts/kpkDeployerLib.sol';
 import {Vm} from 'forge-std/Test.sol';
 
 contract IntegrationKpkDeployerTest is ForkTest {
-  ICreateCall deployerSafe;
   ITokenVestingPlans tokenVestingPlans;
 
   KpkDeployer kpkDeployer;
 
   function setUp() public {
     _forkSetupBefore();
-    deployerSafe = ICreateCall(0x7cbB62EaA69F79e6873cD1ecB2392971036cFAa4); // Simple create deployer from Safe
   }
 
   function testDeployer() public {
@@ -23,21 +30,17 @@ contract IntegrationKpkDeployerTest is ForkTest {
 
     vm.recordLogs();
 
-    kpkDeployer = KpkDeployer(address(deployerSafe.performCreate(0, bytecode)));
+    kpkDeployer = KpkDeployer(address(safeCreateCall.performCreate(0, bytecode)));
 
     ///------------------------------------------------------------------------
     /// Fetch fixed data from the KpkDeployer contract
-
-    uint256 CLIFF_IN_SECONDS = kpkDeployer.CLIFF_IN_SECONDS();
-    uint256 SECONDS_IN_TWO_YEARS = kpkDeployer.SECONDS_IN_TWO_YEARS();
-
     uint256 numberOfOwners = kpkDeployer.getNumberOfGovernanceSafeOwners();
     address[] memory GOVERNANCE_SAFE_OWNERS = new address[](numberOfOwners);
 
     for (uint256 i = 0; i < numberOfOwners; i++) {
-      GOVERNANCE_SAFE_OWNERS[i] = kpkDeployer.GOVERNANCE_SAFE_OWNERS(i);
+      GOVERNANCE_SAFE_OWNERS[i] = KpkTokenDeploymentConfig.governanceSafeOwners()[i];
     }
-    uint256 THRESHOLD = kpkDeployer.THRESHOLD();
+    uint256 THRESHOLD = KpkTokenDeploymentConfig.governanceSafeThreshold();
 
     tokenVestingPlans = ITokenVestingPlans(kpkDeployer.TOKEN_VESTING_PLANS());
 
@@ -49,8 +52,8 @@ contract IntegrationKpkDeployerTest is ForkTest {
 
     assertEq(entries[0].topics[0], keccak256('SafeSetup(address,address[],uint256,address,address)'));
     (address[] memory owners, uint256 threshold,,) = abi.decode(entries[0].data, (address[], uint256, address, address));
-    assertEq(owners, GOVERNANCE_SAFE_OWNERS);
-    assertEq(threshold, THRESHOLD);
+    assertEq(owners, KpkTokenDeploymentConfig.governanceSafeOwners());
+    assertEq(threshold, KpkTokenDeploymentConfig.governanceSafeThreshold());
 
     assertEq(entries[1].topics[0], keccak256('ProxyCreation(address,address)'));
     (address governanceSafe,) = abi.decode(entries[1].data, (address, address));
@@ -117,18 +120,4 @@ contract IntegrationKpkDeployerTest is ForkTest {
     }
     assertEq(kpkToken.transferAllowlisted(KARPATKEY_TREASURY_SAFE), true);
   }
-}
-
-interface ICreateCall {
-  function performCreate(uint256 value, bytes memory deploymentData) external returns (address newContract);
-}
-
-interface ITokenVestingPlans {
-  function redeemPlans(
-    uint256[] memory planIds
-  ) external;
-
-  function plans(
-    uint256 planId
-  ) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, bool);
 }
