@@ -6,17 +6,18 @@ import {ForkTest} from './ForkTest.sol';
 import {KpkDeployer} from 'contracts/KpkDeployer.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 
-import {KpkTokenDeploymentConfig} from 'contracts/KpkTokenDeploymentConfig.sol';
 import {
   CLIFF_IN_SECONDS,
   ISafeCreateCall,
   ITokenVestingPlans,
+  KARPATKEY_TREASURY_SAFE,
   SAFE_CREATE_CALL,
-  SECONDS_IN_TWO_YEARS
-} from 'contracts/kpkDeployerLib.sol';
+  SECONDS_IN_TWO_YEARS,
+  TOKEN_VESTING_PLANS
+} from 'contracts/KpkDeployerLib.sol';
 import {Vm} from 'forge-std/Test.sol';
 
-contract IntegrationKpkDeployerTest is ForkTest {
+contract IntegrationTestKpkDeployer is ForkTest {
   ITokenVestingPlans tokenVestingPlans;
 
   KpkDeployer kpkDeployer;
@@ -34,33 +35,13 @@ contract IntegrationKpkDeployerTest is ForkTest {
 
     ///------------------------------------------------------------------------
     /// Fetch fixed data from the KpkDeployer contract
-    uint256 numberOfOwners = kpkDeployer.getNumberOfGovernanceSafeOwners();
-    address[] memory GOVERNANCE_SAFE_OWNERS = new address[](numberOfOwners);
+    tokenVestingPlans = ITokenVestingPlans(TOKEN_VESTING_PLANS);
 
-    for (uint256 i = 0; i < numberOfOwners; i++) {
-      GOVERNANCE_SAFE_OWNERS[i] = KpkTokenDeploymentConfig.governanceSafeOwners()[i];
-    }
-    uint256 THRESHOLD = KpkTokenDeploymentConfig.governanceSafeThreshold();
-
-    tokenVestingPlans = ITokenVestingPlans(kpkDeployer.TOKEN_VESTING_PLANS());
-
-    address KARPATKEY_TREASURY_SAFE = kpkDeployer.KARPATKEY_TREASURY_SAFE();
+    KpkToken kpkToken = KpkToken(kpkDeployer.kpkTokenAddress());
 
     ///------------------------------------------------------------------------
 
     Vm.Log[] memory entries = vm.getRecordedLogs();
-
-    assertEq(entries[0].topics[0], keccak256('SafeSetup(address,address[],uint256,address,address)'));
-    (address[] memory owners, uint256 threshold,,) = abi.decode(entries[0].data, (address[], uint256, address, address));
-    assertEq(owners, KpkTokenDeploymentConfig.governanceSafeOwners());
-    assertEq(threshold, KpkTokenDeploymentConfig.governanceSafeThreshold());
-
-    assertEq(entries[1].topics[0], keccak256('ProxyCreation(address,address)'));
-    (address governanceSafe,) = abi.decode(entries[1].data, (address, address));
-
-    assertEq(entries[3].topics[0], keccak256('Upgraded(address)'));
-    KpkToken kpkToken = KpkToken(entries[3].emitter);
-    assertEq(kpkToken.owner(), governanceSafe);
 
     bytes32 planCreatedTopic =
       keccak256('PlanCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256,address,bool)');
@@ -97,7 +78,7 @@ contract IntegrationKpkDeployerTest is ForkTest {
         assertEq(cliff, cliffBool ? start + CLIFF_IN_SECONDS : start);
         assertEq(rate, amount / SECONDS_IN_TWO_YEARS);
         assertEq(period, 1);
-        assertEq(vestingAdmin, governanceSafe);
+        assertEq(vestingAdmin, KARPATKEY_TREASURY_SAFE);
         assertEq(adminTransferOBO, true);
 
         // Redeem the plan and verify the balance
@@ -110,9 +91,13 @@ contract IntegrationKpkDeployerTest is ForkTest {
           kpkToken.balanceOf(tokenOwner),
           initialBalance
             + (
-              (block.timestamp - start) > SECONDS_IN_TWO_YEARS
-                ? amount
-                : (block.timestamp < cliff ? 0 : amount / SECONDS_IN_TWO_YEARS * (block.timestamp - start))
+              block.timestamp < cliff
+                ? 0
+                : (
+                  (block.timestamp - start) > SECONDS_IN_TWO_YEARS
+                    ? amount
+                    : (amount / SECONDS_IN_TWO_YEARS * (block.timestamp - start))
+                )
             )
         );
         vm.stopPrank();
