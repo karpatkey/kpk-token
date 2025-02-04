@@ -1,14 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {TimelockController} from '@openzeppelin/contracts/governance/TimelockController.sol';
-import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
-import {KpkGovernor} from 'contracts/KpkGovernor.sol';
-import {KpkToken} from 'contracts/KpkToken.sol';
-//import {TimelockController} from 'contracts/TimelockController.sol'; In case we wanna use an upgradeable version
 import {
   BATCH_PLANNER,
-  CLIFF_IN_SECONDS,
   GNOSIS_DAO_TREASURY_SAFE,
   IBatchPlanner,
   KARPATKEY_TREASURY_SAFE,
@@ -16,11 +10,14 @@ import {
   SECONDS_IN_TWO_YEARS,
   TOKEN_VESTING_PLANS
 } from './KpkDeployerLib.sol';
+import {TimelockController} from '@openzeppelin/contracts/governance/TimelockController.sol';
+import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
+import {KpkGovernor} from 'contracts/KpkGovernor.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract KpkDeployer {
   address public kpkTokenAddress;
 
-  IBatchPlanner.AllocationData[] public allocations;
   IBatchPlanner.Plan[] public plans;
 
   uint256 public MIN_DELAY = 60;
@@ -89,34 +86,40 @@ contract KpkDeployer {
     timelockController.grantRole(timelockController.PROPOSER_ROLE(), address(kpkGovernor));
     timelockController.renounceRole(timelockController.DEFAULT_ADMIN_ROLE(), address(this));
 
-    uint256 totalAllocation = 0;
-
-    allocations.push(IBatchPlanner.AllocationData(GNOSIS_DAO_TREASURY_SAFE, 25_000_000 ether, 1_642_075_200, false));
-    allocations.push(
-      IBatchPlanner.AllocationData(
-        GNOSIS_DAO_TREASURY_SAFE, 75_000_000 ether, block.timestamp + SECONDS_IN_A_YEAR, false
+    plans.push(
+      IBatchPlanner.Plan(
+        GNOSIS_DAO_TREASURY_SAFE,
+        25_000_000 ether,
+        1_642_075_200,
+        1_642_075_200,
+        (25_000_000 ether) / SECONDS_IN_TWO_YEARS
       )
     );
 
-    for (uint256 i = 0; i < allocations.length; i++) {
-      totalAllocation += allocations[i].amount;
-      plans.push(
-        IBatchPlanner.Plan(
-          allocations[i].recipient,
-          allocations[i].amount,
-          allocations[i].start,
-          allocations[i].cliffBool ? allocations[i].start + CLIFF_IN_SECONDS : allocations[i].start,
-          allocations[i].amount / SECONDS_IN_TWO_YEARS
-        )
-      );
-    }
+    plans.push(
+      IBatchPlanner.Plan(
+        GNOSIS_DAO_TREASURY_SAFE,
+        75_000_000 ether,
+        block.timestamp + SECONDS_IN_A_YEAR,
+        block.timestamp + SECONDS_IN_A_YEAR,
+        (75_000_000 ether) / SECONDS_IN_TWO_YEARS
+      )
+    );
+
     kpkToken.transferAllowlist(TOKEN_VESTING_PLANS, true);
     kpkToken.transferAllowlist(BATCH_PLANNER, true);
 
-    kpkToken.approve(BATCH_PLANNER, totalAllocation);
+    kpkToken.approve(BATCH_PLANNER, 25_000_000 ether + 75_000_000 ether);
 
     IBatchPlanner(BATCH_PLANNER).batchVestingPlans(
-      TOKEN_VESTING_PLANS, address(kpkToken), totalAllocation, plans, 1, KARPATKEY_TREASURY_SAFE, true, 4
+      TOKEN_VESTING_PLANS,
+      address(kpkToken),
+      25_000_000 ether + 75_000_000 ether,
+      plans,
+      1,
+      KARPATKEY_TREASURY_SAFE,
+      true,
+      4
     );
 
     // Transfer the remaining tokens to the karpatkey Treasury Safe

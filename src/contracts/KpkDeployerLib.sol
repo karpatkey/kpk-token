@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-uint256 constant CLIFF_IN_SECONDS = 47_304_000;
 uint256 constant SECONDS_IN_A_YEAR = 31_536_000;
 uint256 constant SECONDS_IN_TWO_YEARS = SECONDS_IN_A_YEAR * 2;
 
@@ -37,10 +36,6 @@ address constant GNOSIS_DAO_TREASURY_SAFE = 0x849D52316331967b6fF1198e5E32A0eB16
  * @dev The address of the Safe Create Call on Mainnet and Sepolia.
  */
 address constant SAFE_CREATE_CALL = 0x7cbB62EaA69F79e6873cD1ecB2392971036cFAa4;
-/**
- * @dev Safe Proxy Factory
- */
-address constant SAFE_PROXY_FACTORY = 0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2;
 
 /**
  * @dev Interface for the Safe Create Call
@@ -61,13 +56,6 @@ interface IBatchPlanner {
     uint256 start;
     uint256 cliff;
     uint256 rate;
-  }
-
-  struct AllocationData {
-    address recipient;
-    uint256 amount;
-    uint256 start;
-    bool cliffBool;
   }
 
   /// @notice function to create a batch of vesting plans.
@@ -100,17 +88,4 @@ interface ITokenVestingPlans {
   function plans(
     uint256 planId
   ) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, bool);
-}
-
-/**
- * @title ISafeProxyFactory
- * @author Karpatkey
- * @notice Interface for the Safe Proxy Factory
- */
-interface ISafeProxyFactory {
-  function createProxyWithNonce(
-    address _singleton,
-    bytes memory initializer,
-    uint256 saltNonce
-  ) external returns (address proxy);
 }

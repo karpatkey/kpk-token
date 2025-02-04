@@ -7,11 +7,12 @@ import {KpkDeployer} from 'contracts/KpkDeployer.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 
 import {
-  CLIFF_IN_SECONDS,
+  GNOSIS_DAO_TREASURY_SAFE,
   ISafeCreateCall,
   ITokenVestingPlans,
   KARPATKEY_TREASURY_SAFE,
   SAFE_CREATE_CALL,
+  SECONDS_IN_A_YEAR,
   SECONDS_IN_TWO_YEARS,
   TOKEN_VESTING_PLANS
 } from 'contracts/KpkDeployerLib.sol';
@@ -26,8 +27,20 @@ contract IntegrationTestKpkDeployer is ForkTest {
     _forkSetupBefore();
   }
 
+  struct AllocationData {
+    address recipient;
+    uint256 amount;
+    uint256 start;
+  }
+
   function testDeployer() public {
     bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer.sol:KpkDeployer'));
+
+    // Pre-allocate an array of size 2 in memory
+    AllocationData[] memory allocations = new AllocationData[](2);
+
+    allocations[0] = AllocationData(GNOSIS_DAO_TREASURY_SAFE, 25_000_000 ether, 1_642_075_200);
+    allocations[1] = AllocationData(GNOSIS_DAO_TREASURY_SAFE, 75_000_000 ether, block.timestamp + SECONDS_IN_A_YEAR);
 
     vm.recordLogs();
 
@@ -55,11 +68,8 @@ contract IntegrationTestKpkDeployer is ForkTest {
         address planRecipient = abi.decode(abi.encodePacked(entries[i].topics[2]), (address));
         address planToken = abi.decode(abi.encodePacked(entries[i].topics[3]), (address));
 
-        // Get the corresponding allocation details
-        (address tokenOwner, uint256 amount, uint256 start, bool cliffBool) = kpkDeployer.allocations(j);
-        j++;
         // Verify the PlanCreated event details
-        assertEq(planRecipient, tokenOwner);
+        assertEq(planRecipient, allocations[j].recipient);
         assertEq(planToken, address(kpkToken));
 
         (
@@ -73,34 +83,35 @@ contract IntegrationTestKpkDeployer is ForkTest {
           bool adminTransferOBO
         ) = tokenVestingPlans.plans(planId);
         assertEq(tokenAddress, address(kpkToken));
-        assertEq(amountPlan, amount);
-        assertEq(startPlan, start);
-        assertEq(cliff, cliffBool ? start + CLIFF_IN_SECONDS : start);
-        assertEq(rate, amount / SECONDS_IN_TWO_YEARS);
+        assertEq(amountPlan, allocations[j].amount);
+        assertEq(startPlan, allocations[j].start);
+        assertEq(cliff, allocations[j].start);
+        assertEq(rate, allocations[j].amount / SECONDS_IN_TWO_YEARS);
         assertEq(period, 1);
         assertEq(vestingAdmin, KARPATKEY_TREASURY_SAFE);
         assertEq(adminTransferOBO, true);
 
         // Redeem the plan and verify the balance
-        vm.startPrank(tokenOwner);
+        vm.startPrank(allocations[j].recipient);
         planIds[0] = planId;
-        uint256 initialBalance = kpkToken.balanceOf(tokenOwner);
+        uint256 initialBalance = kpkToken.balanceOf(allocations[j].recipient);
         tokenVestingPlans.redeemPlans(planIds);
 
         assertEq(
-          kpkToken.balanceOf(tokenOwner),
+          kpkToken.balanceOf(allocations[j].recipient),
           initialBalance
             + (
               block.timestamp < cliff
                 ? 0
                 : (
-                  (block.timestamp - start) > SECONDS_IN_TWO_YEARS
-                    ? amount
-                    : (amount / SECONDS_IN_TWO_YEARS * (block.timestamp - start))
+                  (block.timestamp - allocations[j].start) > SECONDS_IN_TWO_YEARS
+                    ? allocations[j].amount
+                    : (allocations[j].amount / SECONDS_IN_TWO_YEARS * (block.timestamp - allocations[j].start))
                 )
             )
         );
         vm.stopPrank();
+        j++;
       }
     }
     assertEq(kpkToken.transferAllowlisted(KARPATKEY_TREASURY_SAFE), true);
