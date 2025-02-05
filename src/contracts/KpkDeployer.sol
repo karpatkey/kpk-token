@@ -10,12 +10,14 @@ import {
   SECONDS_IN_TWO_YEARS,
   TOKEN_VESTING_PLANS
 } from './KpkDeployerLib.sol';
+
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {TimelockController} from '@openzeppelin/contracts/governance/TimelockController.sol';
 import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
 import {KpkGovernor} from 'contracts/KpkGovernor.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 
-contract KpkDeployer {
+contract KpkDeployer is Ownable {
   address public kpkTokenAddress;
 
   IBatchPlanner.Plan[] public plans;
@@ -24,7 +26,21 @@ contract KpkDeployer {
   address[] public PROPOSERS;
   address[] public EXECUTORS;
 
-  constructor() {
+  constructor(
+    address initialOwner
+  ) Ownable(initialOwner) {}
+
+  function deploy()
+    public
+    onlyOwner
+    returns (
+      address timelockController,
+      address kpkTokenImpl,
+      address kpkTokenProxy,
+      address kpkGovernorImpl,
+      address kpkGovernorProxy
+    )
+  {
     /*The Proposer role is in charge of queueing operations: this is the role the Governor instance should be
     granted, and it should likely be the only proposer in the system.
 
@@ -44,23 +60,6 @@ contract KpkDeployer {
     // Should we assign an alternative admin (instead of address(0))? The Foundation safe?
 
     TimelockController timelockController = new TimelockController(MIN_DELAY, PROPOSERS, EXECUTORS, address(this));
-
-    // Do we want this one to be upgradeable? The following code would accomplish that. What's the proxy admin then?
-
-    /* TimelockController timelockControllerImpl = new TimelockController();
-    address timelockControllerProxyAddress = address(
-      new TransparentUpgradeableProxy(
-        address(timelockControllerImpl),
-        TIMELOCK_CONTROLLER_PROXY_ADMIN,
-        abi.encodeWithSignature(
-          'initialize(uint256,address[],address[],address)',
-          MIN_DELAY,
-          PROPOSERS,
-          EXECUTORS,
-          address(0) // Do we want an optional admin?
-        )
-      )
-    ); */
 
     KpkToken kpkTokenImpl = new KpkToken();
     address kpkTokenProxyAddress = address(
@@ -126,5 +125,13 @@ contract KpkDeployer {
     kpkToken.transfer(KARPATKEY_TREASURY_SAFE, kpkToken.balanceOf(address(this)));
     kpkToken.transferAllowlist(KARPATKEY_TREASURY_SAFE, true);
     kpkToken.transferOwnership(address(timelockController));
+
+    return (
+      address(timelockController),
+      address(kpkTokenImpl),
+      kpkTokenProxyAddress,
+      address(kpkGovernorImpl),
+      kpkGovernorProxyAddress
+    );
   }
 }

@@ -14,7 +14,6 @@
     "build": "forge build --via-ir",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "coverage": "forge coverage --match-contract Unit",
-    "deploy:timelock:sepolia": "bash -c 'source .env && forge script DeployTimelockSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "deploy:token:sepolia": "bash -c 'source .env && forge clean && forge script script/Deploy.sol DeployTokenSepolia --rpc-url $SEPOLIA_RPC --broadcast --private-key $SEPOLIA_DEPLOYER_PK --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "lint:check": "yarn lint:sol-tests && yarn lint:sol-logic && forge fmt --check",
     "lint:fix": "sort-package-json && forge fmt && yarn lint:sol-tests --fix && yarn lint:sol-logic --fix",
@@ -22,8 +21,8 @@
     "lint:sol-tests": "solhint -c .solhint.tests.json 'test/**/*.sol'",
     "prepare": "husky install",
     "test": "forge clean && forge test --via-ir -vv",
-    "test:deployer:mainnet": "forge clean && forge test --match-contract IntegrationTestKpkDeployer --via-ir -vvvv",
-    "test:deployer:mainnet:log-file": "forge clean && forge test --match-contract IntegrationTestKpkDeployer --via-ir -vvvv > mainnet_logs.txt 2>&1",
+    "test:deployer": "forge clean && forge test --match-contract IntegrationTestKpkDeployer --via-ir -vvvv",
+    "test:deployer:log-file": "forge clean && forge test --match-contract IntegrationTestKpkDeployer --via-ir -vvvv > mainnet_logs.txt 2>&1",
     "test:integration": "forge clean && forge test --match-contract Integration --via-ir -vvv",
     "test:unit": "forge clean && forge test --match-contract Unit --via-ir -vvv",
     "test:unit:deep": "FOUNDRY_FUZZ_RUNS=5000 yarn test:unit"

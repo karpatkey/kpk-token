@@ -11,7 +11,7 @@ address constant TOKEN_VESTING_PLANS = 0x2CDE9919e81b20B4B33DD562a48a84b54C48F00
 /**
  * @dev The address of the Hedgey Finance Token Vesting Plans on Sepolia
  */
-address constant TOKEN_VESTING_PLANS_155 = 0x68b6986416c7A38F630cBc644a2833A0b78b3631;
+address constant TOKEN_VESTING_PLANS_SEPOLIA = 0x68b6986416c7A38F630cBc644a2833A0b78b3631;
 
 /**
  * @dev The address of the BatchPlanner contract on Mainnet
@@ -20,7 +20,7 @@ address constant BATCH_PLANNER = 0x3466EB008EDD8d5052446293D1a7D212cb65C646;
 /**
  * @dev The address of the BatchPlanner contract on Sepolia
  */
-address constant BATCH_PLANNER_155 = 0xd8B085f666299E52f24e637aB1076ba5C2c38045;
+address constant BATCH_PLANNER_SEPOLIA = 0xd8B085f666299E52f24e637aB1076ba5C2c38045;
 
 /**
  * @dev The address of the Karpatkey Treasury Safe on Mainnet

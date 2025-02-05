@@ -3,9 +3,8 @@ pragma solidity 0.8.20;
 
 import {ForkTest} from './ForkTest.sol';
 
+import {TimelockController} from '@openzeppelin/contracts/governance/TimelockController.sol';
 import {KpkDeployer} from 'contracts/KpkDeployer.sol';
-import {KpkToken} from 'contracts/KpkToken.sol';
-
 import {
   GNOSIS_DAO_TREASURY_SAFE,
   ISafeCreateCall,
@@ -16,12 +15,18 @@ import {
   SECONDS_IN_TWO_YEARS,
   TOKEN_VESTING_PLANS
 } from 'contracts/KpkDeployerLib.sol';
+import {KpkGovernor} from 'contracts/KpkGovernor.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
+
 import {Vm} from 'forge-std/Test.sol';
 
 contract IntegrationTestKpkDeployer is ForkTest {
   ITokenVestingPlans tokenVestingPlans;
 
   KpkDeployer kpkDeployer;
+  KpkToken kpkToken;
+  KpkGovernor kpkGovernor;
+  TimelockController timelockController;
 
   function setUp() public {
     _forkSetupBefore();
@@ -34,7 +39,31 @@ contract IntegrationTestKpkDeployer is ForkTest {
   }
 
   function testDeployer() public {
-    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer.sol:KpkDeployer'));
+    // Specify the desired owner for KpkDeployer (it must be the one calling deploy())
+    address givenOwner = address(0x123);
+
+    // Append the constructor parameter (owner address) to the bytecode.
+    // This is necessary because KpkDeployer’s constructor takes an address.
+    bytes memory bytecode = abi.encodePacked(vm.getCode('KpkDeployer.sol:KpkDeployer'), abi.encode(givenOwner));
+
+    // Deploy the KpkDeployer contract with the provided owner.
+    // (Using safeCreateCall.performCreate as in your original test)
+    kpkDeployer = KpkDeployer(address(safeCreateCall.performCreate(0, bytecode)));
+
+    // Since deploy() is protected by onlyOwner, start impersonating the owner.
+    vm.startPrank(givenOwner);
+    (
+      address timelockControllerAddress,
+      address kpkTokenImplAddress,
+      address kpkTokenProxyAddress,
+      address kpkGovernorImplAddress,
+      address kpkGovernorProxyAddress
+    ) = kpkDeployer.deploy();
+    vm.stopPrank();
+
+    kpkToken = KpkToken(kpkTokenProxyAddress);
+    kpkGovernor = KpkGovernor(payable(kpkGovernorProxyAddress));
+    timelockController = TimelockController(payable(timelockControllerAddress));
 
     // Pre-allocate an array of size 2 in memory
     AllocationData[] memory allocations = new AllocationData[](2);
@@ -43,8 +72,6 @@ contract IntegrationTestKpkDeployer is ForkTest {
     allocations[1] = AllocationData(GNOSIS_DAO_TREASURY_SAFE, 75_000_000 ether, block.timestamp + SECONDS_IN_A_YEAR);
 
     vm.recordLogs();
-
-    kpkDeployer = KpkDeployer(address(safeCreateCall.performCreate(0, bytecode)));
 
     ///------------------------------------------------------------------------
     /// Fetch fixed data from the KpkDeployer contract
