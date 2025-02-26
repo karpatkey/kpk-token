@@ -20,11 +20,11 @@ import {Script} from 'forge-std/Script.sol';
 import {console} from 'forge-std/console.sol';
 
 abstract contract DeployToken is Script {
-  KpkToken kpkToken;
-  TimelockController timelockController;
+  KpkToken public kpkToken;
+  TimelockController public timelockController;
 
   IBatchPlanner.Plan[] plans;
-  address tokenVestingPlansAddress;
+  address public tokenVestingPlansAddress;
   address batchPlannerAddress;
 
   uint256 GNOSIS_DAO_ALLOCATION_1 = 25e6 ether;
@@ -46,17 +46,17 @@ abstract contract DeployToken is Script {
     timelockMinDelay = 3600 * 24; // 1 day
     // timelockProposers is a priori empty, but later the role shall be granted to the governor contract
     timelockExecutors.push(address(0)); // Anyone can execute the payloads of already approved proposals
-    timeLockAdmin = _deployerAddress;
 
     // TimelockController deployment
     //---------------------------------------------------------------------------------------------------------------
-    timelockController = new TimelockController(timelockMinDelay, timelockProposers, timelockExecutors, timeLockAdmin);
+    timelockController =
+      new TimelockController(timelockMinDelay, timelockProposers, timelockExecutors, _deployerAddress);
 
     // Token deployment
     //---------------------------------------------------------------------------------------------------------------
     address kpktokenProxyAddress = Upgrades.deployTransparentProxy(
       'KpkToken.sol',
-      address(timelockController), // Proxy admin
+      address(timelockController), // Owner of the proxy admin
       abi.encodeCall(KpkToken.initialize, _deployerAddress) /* The token contract owner is at first the deployer, to be able to create the vesting plans*/
     );
     kpkToken = KpkToken(kpktokenProxyAddress);
@@ -122,11 +122,12 @@ abstract contract DeployToken is Script {
 }
 
 contract DeployTokenSepolia is DeployToken {
-  address _deployerAddress = 0xbdAed5545b57b0b783D98c1Dd14C23975F2495bC;
+  address public _deployerAddress;
   address _vestingPlansRecipientAddress = 0x80e26ecEA683a9d4a5d511c084e1B050C72f15a9;
   address _finalHolderOfKpkAddress = 0x495f9Cd38351A199ac6ff3bB952D0a65DD464736;
 
   function run() external {
+    _deployerAddress = msg.sender;
     vm.startBroadcast();
     _deploy(_deployerAddress, _vestingPlansRecipientAddress, _finalHolderOfKpkAddress, true);
     vm.stopBroadcast();
@@ -134,17 +135,20 @@ contract DeployTokenSepolia is DeployToken {
 }
 
 contract DeployTokenMainnet is DeployToken {
-  address public _deployerAddress = 0xbdAed5545b57b0b783D98c1Dd14C23975F2495bC;
+  address public _deployerAddress;
   address public _vestingPlansRecipientAddress = GNOSIS_DAO_TREASURY_SAFE;
   address public _finalHolderOfKpkAddress = KPK_TREASURY_SAFE;
 
   function run() external {
+    _deployerAddress = msg.sender;
     vm.startBroadcast();
     _deploy(_deployerAddress, _vestingPlansRecipientAddress, _finalHolderOfKpkAddress, false);
     vm.stopBroadcast();
   }
 
-  function deploy() public {
+  function deployToBeUsedForTesting(
+    address _deployerAddress
+  ) public {
     _deploy(_deployerAddress, _vestingPlansRecipientAddress, _finalHolderOfKpkAddress, false);
   }
 }

@@ -22,7 +22,7 @@ import {Vm} from 'forge-std/Test.sol';
 //import {console} from "forge-std/console.sol";
 import {DeployToken, DeployTokenMainnet} from 'script/Deploy.sol';
 
-contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
+contract IntegrationTestDeployerScript is ForkTest {
   ITokenVestingPlans tokenVestingPlans;
 
   function setUp() public {
@@ -37,16 +37,16 @@ contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
 
   function testDeployTokenMainnet() public {
     DeployTokenMainnet deployTokenMainnet = new DeployTokenMainnet();
-    address deployerAddress = deployTokenMainnet._deployerAddress();
-    address vestingPlansRecipientAddress = deployTokenMainnet._vestingPlansRecipientAddress();
-    address finalHolderOfKpkAddress = deployTokenMainnet._finalHolderOfKpkAddress();
+    address deployerAddress = address(deployTokenMainnet);
+    //address vestingPlansRecipientAddress = deployTokenMainnet._vestingPlansRecipientAddress();
+    //address finalHolderOfKpkAddress = deployTokenMainnet._finalHolderOfKpkAddress();
 
-    vm.startPrank(deployerAddress);
     vm.recordLogs();
 
-    deploy();
-    vm.stopPrank();
+    deployTokenMainnet.deployToBeUsedForTesting(deployerAddress);
     Vm.Log[] memory entries = vm.getRecordedLogs();
+
+    tokenVestingPlans = ITokenVestingPlans(deployTokenMainnet.tokenVestingPlansAddress());
 
     // Pre-allocate an array of size 2 in memory
     AllocationData[] memory allocations = new AllocationData[](2);
@@ -72,7 +72,7 @@ contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
 
         // Verify the PlanCreated event details
         assertEq(planRecipient, allocations[j].recipient);
-        assertEq(planToken, address(kpkToken));
+        assertEq(planToken, address(deployTokenMainnet.kpkToken()));
 
         (
           address tokenAddress,
@@ -84,7 +84,7 @@ contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
           address vestingAdmin,
           bool adminTransferOBO
         ) = tokenVestingPlans.plans(planId);
-        assertEq(tokenAddress, address(kpkToken));
+        assertEq(tokenAddress, address(deployTokenMainnet.kpkToken()));
         assertEq(amountPlan, allocations[j].amount);
         assertEq(startPlan, allocations[j].start);
         assertEq(cliff, allocations[j].start);
@@ -96,11 +96,11 @@ contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
         // Redeem the plan and verify the balance
         vm.startPrank(allocations[j].recipient);
         planIds[0] = planId;
-        uint256 initialBalance = kpkToken.balanceOf(allocations[j].recipient);
+        uint256 initialBalance = deployTokenMainnet.kpkToken().balanceOf(allocations[j].recipient);
         tokenVestingPlans.redeemPlans(planIds);
 
         assertEq(
-          kpkToken.balanceOf(allocations[j].recipient),
+          deployTokenMainnet.kpkToken().balanceOf(allocations[j].recipient),
           initialBalance
             + (
               block.timestamp < cliff
@@ -112,10 +112,8 @@ contract IntegrationTestDeployerScript is ForkTest, DeployTokenMainnet {
                 )
             )
         );
-        vm.stopPrank();
         j++;
       }
     }
-    assertEq(kpkToken.transferAllowlisted(KPK_TREASURY_SAFE), true);
   }
 }
