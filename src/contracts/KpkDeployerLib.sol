@@ -25,7 +25,7 @@ address constant BATCH_PLANNER_SEPOLIA = 0xd8B085f666299E52f24e637aB1076ba5C2c38
 /**
  * @dev The address of the Karpatkey Treasury Safe on Mainnet
  */
-address constant KARPATKEY_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
+address constant KPK_TREASURY_SAFE = 0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C;
 
 /**
  * @dev The address of the GnosisDAO Treasury Safe on Mainnet
