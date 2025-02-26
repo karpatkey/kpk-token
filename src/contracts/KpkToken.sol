@@ -250,7 +250,7 @@ contract KpkToken is
   }
 
   /**
-   * @notice Indicates whether an address is allowlisted to transfer tokens when the contract is paused.
+   * @notice Indicates whether an address (besides the contract's owner) is allowlisted to transfer tokens when the contract is paused.
    * @dev  Returns `true` if `sender` has been allowlisted to transfer tokens by a call to
    * {transferAllowlist}, otherwise `false`. This is `false` by default.
    * This value changes when {transferAllowlist} is called.
