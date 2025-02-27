@@ -36,10 +36,14 @@ contract KpkGovernor is
 
   function initialize(IVotes _token, TimelockControllerUpgradeable _timelock) public initializer {
     __Governor_init('kpk Governor');
-    __GovernorSettings_init(7200, /* 1 day */ 50_400, /* 1 week */ 0);
+    __GovernorSettings_init(
+      7200, /* initialVotingDelay = 1 day (7200 blocks in a day)*/
+      36_000, /* initialVotingPeriod = 5 days (36_000 blocks in 5 days) */
+      1_000_000e18 /* initialProposalThreshold = 1M KPK, i.e. 0.1% of initial total supply*/
+    );
     __GovernorCountingSimple_init();
     __GovernorVotes_init(_token);
-    __GovernorVotesQuorumFraction_init(4);
+    __GovernorVotesQuorumFraction_init(10 /* quorumNumeratorValue, i.e. quorum = 10% of total supply*/ );
     __GovernorTimelockControl_init(_timelock);
   }
 
