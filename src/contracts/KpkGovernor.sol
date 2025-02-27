@@ -43,7 +43,7 @@ contract KpkGovernor is
     );
     __GovernorCountingSimple_init();
     __GovernorVotes_init(_token);
-    __GovernorVotesQuorumFraction_init(10 /* quorumNumeratorValue, i.e. quorum = 10% of total supply*/ );
+    __GovernorVotesQuorumFraction_init(4 /* quorumNumeratorValue, i.e. quorum = 10% of total supply*/ );
     __GovernorTimelockControl_init(_timelock);
   }
 
