@@ -1,8 +1,8 @@
-# karpatkey Token
+# kpk Token
 
 ## Details
 
-- Name: `karpatkey Token`
+- Name: `kpk Token`
 - Symbol: `KPK`
 - Native Chain: `Ethereum Mainnet`
 - Standard: `ERC-20`
@@ -11,9 +11,9 @@
 
 ## Purpose & Utility
 
-KPK is a utility token, designed for the purpose of facilitating and delivering alignment across the different stakeholders in karpatkey DAO, to push collectively towards the project’s mission. 
+KPK is a utility token, designed for the purpose of facilitating and delivering alignment across the different stakeholders in kpk DAO, to push collectively towards the project’s mission. 
 
-The primary utility of the token will be the governance of our DAO. More specifically, KPK will used to define treasury parameters and budgets, and to authorise large initaitives like OTC deals, buybacks and other strategic investments.
+The primary utility of the token will be the governance of our DAO. More specifically, KPK will be used to define treasury parameters and budgets, and to authorise large initiatives like OTC deals, buybacks and other strategic investments.
 
 The initial total supply will be 1 billion KPK. The token will be non-transferable at launch, and will remain so for the foreseeable future, unless and until token transferability is enabled by the DAO.
 
@@ -21,11 +21,11 @@ The initial total supply will be 1 billion KPK. The token will be non-transferab
 
 ### Ownership
 
-The karpatkey token contract is ownable and the initial token supply is minted to the specified owner (the karpatkey DAO). Ownership can be transferred and renounced at any point.
+The kpk token contract is ownable and the initial token supply is minted to the specified owner (the kpk DAO). Ownership can be transferred and renounced at any point.
 
 ### Transferability
 
-The karpatkey token is initially not transferrable. The only exceptions to this are (i) the owner of the token contract and (ii) tokenholders that might be granted specific transferring permission by the contract's owner.
+The kpk token is initially not transferrable. The only exceptions to this are (i) the owner of the token contract and (ii) tokenholders that might be granted specific transferring permission by the contract's owner.
 
 #### Paused state
 
@@ -53,7 +53,7 @@ Once unpaused the token is made fully transferable, and the `transferAllowlist`,
 
 ### Supply
 
-The initial total supply of 1 billion karpatkey tokens is minted to the contract's owner at deployment. Tokens can be minted or burned by the contract's owner via the `mint` and `burn`, `burnFrom` methods, respectively.
+The initial total supply of 1 billion kpk tokens is minted to the contract's owner at deployment. Tokens can be minted or burned by the contract's owner via the `mint` and `burn`, `burnFrom` methods, respectively.
 
 #### Burning and paused state
 

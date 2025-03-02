@@ -4,7 +4,7 @@ pragma solidity =0.8.20;
 import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.sol';
 
 import {Base} from '.././Base.sol';
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract UnitTestTransferFrom is Base {
   address internal _sender = makeAddr('sender');
@@ -69,9 +69,7 @@ contract UnitTestTransferFrom is Base {
     _kpktoken.increaseTransferAllowance(_sender, _recipient, _amount);
     vm.startPrank(_mover);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        karpatkeyToken.InsufficientTransferAllowance.selector, _sender, _recipient, _amount, _amount + 1
-      )
+      abi.encodeWithSelector(KpkToken.InsufficientTransferAllowance.selector, _sender, _recipient, _amount, _amount + 1)
     );
     _kpktoken.transferFrom(_sender, _recipient, _amount + 1);
   }

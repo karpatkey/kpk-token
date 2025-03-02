@@ -5,7 +5,7 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract UnitTestRescueToken is Base {
   uint256 internal constant _FORK_BLOCK = 19_534_932;
@@ -31,9 +31,7 @@ contract UnitTestRescueToken is Base {
   function testRescueTokenExpectedRevertInsufficientBalanceToRescue() public {
     address _beneficiary = makeAddr('beneficiary');
     vm.startPrank(_owner);
-    vm.expectRevert(
-      abi.encodeWithSelector(karpatkeyToken.InsufficientBalanceToRescue.selector, _dai, _amount, _amount + 1)
-    );
+    vm.expectRevert(abi.encodeWithSelector(KpkToken.InsufficientBalanceToRescue.selector, _dai, _amount, _amount + 1));
     _kpktoken.rescueToken(_dai, _beneficiary, _amount + 1);
   }
 

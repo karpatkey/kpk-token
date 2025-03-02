@@ -4,25 +4,23 @@ pragma solidity =0.8.20;
 
 import {GovernorUpgradeable} from '@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol';
 
+import {TimelockControllerUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgradeable.sol';
 import {GovernorCountingSimpleUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol';
 import {GovernorSettingsUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol';
-
-import {
-  GovernorTimelockControlUpgradeable,
-  TimelockControllerUpgradeable
-} from '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol';
+import {GovernorTimelockControlUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol';
 import {GovernorVotesQuorumFractionUpgradeable} from
   '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol';
-import {
-  GovernorVotesUpgradeable,
-  IVotes
-} from '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol';
+import {GovernorVotesUpgradeable} from
+  '@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol';
 
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import {IVotes} from '@openzeppelin/contracts/governance/utils/IVotes.sol';
 
-contract MyGovernor is
+contract KpkGovernor is
   Initializable,
   GovernorUpgradeable,
   GovernorSettingsUpgradeable,
@@ -37,11 +35,15 @@ contract MyGovernor is
   }
 
   function initialize(IVotes _token, TimelockControllerUpgradeable _timelock) public initializer {
-    __Governor_init('MyGovernor');
-    __GovernorSettings_init(7200, /* 1 day */ 50_400, /* 1 week */ 0);
+    __Governor_init('kpk Governor');
+    __GovernorSettings_init(
+      7200, /* initialVotingDelay = 1 day (7200 blocks in a day)*/
+      36_000, /* initialVotingPeriod = 5 days (36_000 blocks in 5 days) */
+      1e6 ether /* initialProposalThreshold = 1M KPK, i.e. 0.1% of initial total supply*/
+    );
     __GovernorCountingSimple_init();
     __GovernorVotes_init(_token);
-    __GovernorVotesQuorumFraction_init(4);
+    __GovernorVotesQuorumFraction_init(4 /* quorumNumeratorValue, i.e. quorum = 4% of total supply = 40 M KPK*/ );
     __GovernorTimelockControl_init(_timelock);
   }
 
@@ -55,30 +57,21 @@ contract MyGovernor is
     return super.votingPeriod();
   }
 
-  function quorum(uint256 blockNumber)
-    public
-    view
-    override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
-    returns (uint256)
-  {
+  function quorum(
+    uint256 blockNumber
+  ) public view override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable) returns (uint256) {
     return super.quorum(blockNumber);
   }
 
-  function state(uint256 proposalId)
-    public
-    view
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
-    returns (ProposalState)
-  {
+  function state(
+    uint256 proposalId
+  ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
     return super.state(proposalId);
   }
 
-  function proposalNeedsQueuing(uint256 proposalId)
-    public
-    view
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
-    returns (bool)
-  {
+  function proposalNeedsQueuing(
+    uint256 proposalId
+  ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (bool) {
     return super.proposalNeedsQueuing(proposalId);
   }
 

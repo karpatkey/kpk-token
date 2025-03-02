@@ -6,9 +6,9 @@ import {Base} from '.././Base.sol';
 contract UnitTestConstructor is Base {
   function testConstructor() public view {
     assertEq(_kpktoken.owner(), _owner);
-    assertEq(_kpktoken.totalSupply(), 1_000_000 * 10 ** _kpktoken.decimals());
-    assertEq(_kpktoken.balanceOf(_owner), 1_000_000 * 10 ** _kpktoken.decimals());
-    assertEq(_kpktoken.name(), 'karpatkey Token');
+    assertEq(_kpktoken.totalSupply(), 1_000_000_000 * 10 ** _kpktoken.decimals());
+    assertEq(_kpktoken.balanceOf(_owner), 1_000_000_000 * 10 ** _kpktoken.decimals());
+    assertEq(_kpktoken.name(), 'kpk Token');
     assertEq(_kpktoken.symbol(), 'KPK');
     assertEq(_kpktoken.decimals(), 18);
     assertEq(_kpktoken.paused(), true);

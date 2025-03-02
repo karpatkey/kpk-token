@@ -3,7 +3,7 @@ pragma solidity =0.8.20;
 
 import {Base} from '.././Base.sol';
 import {IERC20Errors} from '@openzeppelin/contracts/interfaces/draft-IERC6093.sol';
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract UnitTestBurn is Base {
   address internal _holder = makeAddr('holder');
@@ -68,16 +68,14 @@ contract UnitTestBurn is Base {
   function testBurnExpectedRevertInsufficientTransferAllowance() public {
     vm.startPrank(_holder);
     vm.expectRevert(
-      abi.encodeWithSelector(karpatkeyToken.InsufficientTransferAllowance.selector, _holder, address(0), 0, _amount)
+      abi.encodeWithSelector(KpkToken.InsufficientTransferAllowance.selector, _holder, address(0), 0, _amount)
     );
     _kpktoken.burn(_amount);
     vm.startPrank(_owner);
     _kpktoken.increaseTransferAllowance(_holder, address(0), _amount - 1);
     vm.startPrank(_holder);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        karpatkeyToken.InsufficientTransferAllowance.selector, _holder, address(0), _amount - 1, _amount
-      )
+      abi.encodeWithSelector(KpkToken.InsufficientTransferAllowance.selector, _holder, address(0), _amount - 1, _amount)
     );
     _kpktoken.burn(_amount);
   }

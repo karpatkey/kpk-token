@@ -3,7 +3,7 @@ pragma solidity =0.8.20;
 
 import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {karpatkeyToken} from 'contracts/karpatkeyToken.sol';
+import {KpkToken} from 'contracts/KpkToken.sol';
 
 contract UnitTestDecreaseTransferAllowance is Base {
   address internal _sender = makeAddr('sender');
@@ -46,7 +46,7 @@ contract UnitTestDecreaseTransferAllowance is Base {
   function testDecreaseTransferAllowanceExpectedRevertTransferApprovalWhenUnpaused() public {
     vm.startPrank(_owner);
     _kpktoken.unpause();
-    vm.expectRevert(abi.encodeWithSelector(karpatkeyToken.TransferApprovalWhenUnpaused.selector));
+    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferApprovalWhenUnpaused.selector));
     _kpktoken.decreaseTransferAllowance(_sender, _recipient, _amount);
   }
 }

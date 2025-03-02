@@ -18,11 +18,11 @@ import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/Pau
 import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
- * @title karpatkey Token Contract
- * @author karpatkey developers
- * @notice karpatkey's governance token.
+ * @title kpk Token Contract
+ * @author kpk developers
+ * @notice kpk's governance token.
  */
-contract karpatkeyToken is
+contract KpkToken is
   Initializable,
   ERC20Upgradeable,
   ERC20BurnableUpgradeable,
@@ -118,13 +118,16 @@ contract karpatkeyToken is
     _disableInitializers();
   }
 
-  function initialize(address initialOwner) public initializer {
-    __ERC20_init('karpatkey Token', 'KPK');
-    __ERC20Burnable_init();
-    __ERC20Permit_init('karpatkey Token');
-    __ERC20Votes_init();
-    __Ownable_init(initialOwner);
-    _mint(initialOwner, 1_000_000 * 10 ** decimals());
+  function initialize(
+    address initialOwner
+  ) public initializer {
+    __ERC20_init('kpk Token', 'KPK');
+    __Pausable_init(); // Initialize pausable functionality.
+    __Ownable_init(initialOwner); // Then ownable.
+    __ERC20Permit_init('kpk Token'); // Then permit (which will set up EIP712 internally).
+    __ERC20Burnable_init(); // Initialize burnable extension.
+    __ERC20Votes_init(); // Initialize votes extension.
+    _mint(initialOwner, 1_000_000_000 * 10 ** decimals());
     _pause();
   }
 
@@ -247,14 +250,16 @@ contract karpatkeyToken is
   }
 
   /**
-   * @notice Indicates whether an address is allowlisted to transfer tokens when the contract is paused.
+   * @notice Indicates whether an address (besides the contract's owner) is allowlisted to transfer tokens when the contract is paused.
    * @dev  Returns `true` if `sender` has been allowlisted to transfer tokens by a call to
    * {transferAllowlist}, otherwise `false`. This is `false` by default.
    * This value changes when {transferAllowlist} is called.
    * @param sender Address to check if it is allowlisted to transfer tokens.
    * @return allowlisted Boolean indicating whether `sender` is allowlisted.
    */
-  function transferAllowlisted(address sender) public view returns (bool allowlisted) {
+  function transferAllowlisted(
+    address sender
+  ) public view returns (bool allowlisted) {
     return _transferAllowlisted[sender];
   }
 
@@ -277,12 +282,9 @@ contract karpatkeyToken is
    * @notice Returns the next unused nonce for an address.
    * @dev See {NoncesUpgradeable-nonces}.
    */
-  function nonces(address owner)
-    public
-    view
-    override(ERC20PermitUpgradeable, NoncesUpgradeable)
-    returns (uint256 nonce)
-  {
+  function nonces(
+    address owner
+  ) public view override(ERC20PermitUpgradeable, NoncesUpgradeable) returns (uint256 nonce) {
     return super.nonces(owner);
   }
 
