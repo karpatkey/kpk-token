@@ -39,7 +39,7 @@ contract KpkGovernor is
     __GovernorSettings_init(
       7200, /* initialVotingDelay = 1 day (7200 blocks in a day)*/
       36_000, /* initialVotingPeriod = 5 days (36_000 blocks in 5 days) */
-      1_000_000e18 /* initialProposalThreshold = 1M KPK, i.e. 0.1% of initial total supply*/
+      1e6 ether /* initialProposalThreshold = 1M KPK, i.e. 0.1% of initial total supply*/
     );
     __GovernorCountingSimple_init();
     __GovernorVotes_init(_token);
