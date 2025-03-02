@@ -22,13 +22,14 @@ import {console} from 'forge-std/console.sol';
 abstract contract DeployToken is Script {
   KpkToken public kpkToken;
   TimelockController public timelockController;
+  KpkGovernor public kpkGovernor;
 
   IBatchPlanner.Plan[] plans;
   address public tokenVestingPlansAddress;
   address batchPlannerAddress;
 
-  uint256 GNOSIS_DAO_ALLOCATION_1 = 25e6 ether;
-  uint256 GNOSIS_DAO_ALLOCATION_2 = 50e6 ether;
+  uint256 public GNOSIS_DAO_ALLOCATION_1 = 25e6 ether;
+  uint256 public GNOSIS_DAO_ALLOCATION_2 = 50e6 ether;
 
   uint256 timelockMinDelay;
   address[] timelockProposers;
@@ -57,7 +58,7 @@ abstract contract DeployToken is Script {
     address kpktokenProxyAddress = Upgrades.deployTransparentProxy(
       'KpkToken.sol',
       address(timelockController), // Owner of the proxy admin
-      abi.encodeCall(KpkToken.initialize, _deployerAddress) /* The token contract owner is at first the deployer, to be able to create the vesting plans*/
+      abi.encodeCall(KpkToken.initialize, _deployerAddress) // The token contract owner is at first the deployer, to be able to create the vesting plans
     );
     kpkToken = KpkToken(kpktokenProxyAddress);
 
@@ -68,9 +69,11 @@ abstract contract DeployToken is Script {
       address(timelockController), /* Proxy admin */
       abi.encodeWithSignature('initialize(address,address)', address(kpkToken), address(timelockController))
     );
+    kpkGovernor = KpkGovernor(payable(kpkGovernorProxyAddress));
 
     timelockController.grantRole(timelockController.PROPOSER_ROLE(), kpkGovernorProxyAddress); // Grant proposer/canceller role to Governor contract
-    timelockController.grantRole(timelockController.DEFAULT_ADMIN_ROLE(), _finalHolderOfKpkAddress); // Grant admin role to Governor contract
+    timelockController.grantRole(timelockController.CANCELLER_ROLE(), kpkGovernorProxyAddress); // Grant proposer/canceller role to Governor contract
+    timelockController.grantRole(timelockController.DEFAULT_ADMIN_ROLE(), _finalHolderOfKpkAddress); // Grant admin role to safe
     timelockController.renounceRole(timelockController.DEFAULT_ADMIN_ROLE(), _deployerAddress); // Renounce admin role from deployer
 
     // Vesting plans creation
@@ -79,7 +82,7 @@ abstract contract DeployToken is Script {
       IBatchPlanner.Plan(
         _vestingPlansRecipientAddress,
         GNOSIS_DAO_ALLOCATION_1,
-        1_642_075_200, // The date GIP-20 was approved in Snapshot, i.e. January 13th, 2022, 12:00 PM UTC
+        1_642_075_200, // The date GIP-20 was approved in Snapshot, i.e. January 13th, 2022, 12:00 UTC
         1_642_075_200, // No cliff, i.e. cliffDate = startDate
         GNOSIS_DAO_ALLOCATION_1 / SECONDS_IN_TWO_YEARS
       )
@@ -89,12 +92,13 @@ abstract contract DeployToken is Script {
       IBatchPlanner.Plan(
         _vestingPlansRecipientAddress,
         GNOSIS_DAO_ALLOCATION_2,
-        block.timestamp + SECONDS_IN_A_YEAR,
-        block.timestamp + SECONDS_IN_A_YEAR,
+        1_740_706_140 + SECONDS_IN_A_YEAR, // The date GIP-20 was approved in Snapshot + 1 year, i.e. February 28th, 2025, 01:29 UTC + 1 year
+        1_740_706_140 + SECONDS_IN_A_YEAR, // No cliff, i.e. cliffDate = startDate
         GNOSIS_DAO_ALLOCATION_2 / SECONDS_IN_TWO_YEARS
       )
     );
 
+    // Meant for Sepolia deployment testing
     tokenVestingPlansAddress = deployOnSepolia ? TOKEN_VESTING_PLANS_SEPOLIA : TOKEN_VESTING_PLANS;
     batchPlannerAddress = deployOnSepolia ? BATCH_PLANNER_SEPOLIA : BATCH_PLANNER;
 
@@ -102,8 +106,10 @@ abstract contract DeployToken is Script {
     kpkToken.transferAllowlist(tokenVestingPlansAddress, true);
     kpkToken.transferAllowlist(batchPlannerAddress, true);
 
+    // Approve the BatchPlanner to spend the KPK tokens
     kpkToken.approve(batchPlannerAddress, GNOSIS_DAO_ALLOCATION_1 + GNOSIS_DAO_ALLOCATION_2);
 
+    // Create the vesting plans depositing the KPK tokens
     IBatchPlanner(batchPlannerAddress).batchVestingPlans(
       tokenVestingPlansAddress,
       address(kpkToken),
@@ -147,8 +153,8 @@ contract DeployTokenMainnet is DeployToken {
   }
 
   function deployToBeUsedForTesting(
-    address _deployerAddress
+    address _testingDeployerAddress
   ) public {
-    _deploy(_deployerAddress, _vestingPlansRecipientAddress, _finalHolderOfKpkAddress, false);
+    _deploy(_testingDeployerAddress, _vestingPlansRecipientAddress, _finalHolderOfKpkAddress, false);
   }
 }
