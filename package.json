@@ -10,6 +10,7 @@
   },
   "license": "MIT",
   "author": "kpk",
+  "type": "module",
   "scripts": {
     "build": "forge build --via-ir",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
@@ -43,12 +44,14 @@
   "devDependencies": {
     "@commitlint/cli": "17.0.3",
     "@commitlint/config-conventional": "17.0.3",
+    "dotenv": "16.4.7",
     "ds-test": "github:dapphub/ds-test#e282159",
     "forge-std": "github:foundry-rs/forge-std#v1.8.0",
     "husky": ">=8",
     "lint-staged": ">=10",
     "solhint": "3.6.2",
     "solhint-plugin-defi-wonderland": "1.1.0",
-    "sort-package-json": "1.53.1"
+    "sort-package-json": "1.53.1",
+    "viem": "2.23.6"
   }
 }
