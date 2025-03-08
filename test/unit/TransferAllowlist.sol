@@ -5,7 +5,7 @@ import {Base} from '.././Base.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {KpkToken} from 'contracts/KpkToken.sol';
 
-contract UnitTestTransferAllowlisting is Base {
+contract UnitTestTransferAllowlist is Base {
   function testTransferAllowlist() public {
     address _sender = makeAddr('sender');
     vm.startPrank(_owner);
@@ -27,9 +27,9 @@ contract UnitTestTransferAllowlisting is Base {
     address _sender = makeAddr('sender');
     vm.startPrank(_owner);
     _kpktoken.unpause();
-    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferAllowlistingWhenUnpaused.selector));
+    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferAllowlistWhenUnpaused.selector));
     _kpktoken.transferAllowlist(_sender, true);
-    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferAllowlistingWhenUnpaused.selector));
+    vm.expectRevert(abi.encodeWithSelector(KpkToken.TransferAllowlistWhenUnpaused.selector));
     _kpktoken.transferAllowlist(_sender, false);
   }
 }
