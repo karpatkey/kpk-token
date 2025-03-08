@@ -45,7 +45,7 @@ contract KpkToken is
    * @param allowlisted Boolean indicating whether `sender` has been allowlisted or removed from the
    * allowlist.
    */
-  event TransferAllowlisting(address indexed sender, bool indexed allowlisted);
+  event TransferAllowlist(address indexed sender, bool indexed allowlisted);
 
   /**
    * @notice Indicates the setting of a transfer allowance for an address to transfer tokens to a specified
@@ -78,10 +78,10 @@ contract KpkToken is
   );
 
   /**
-   * @notice Indicates that the contract is unpaused when a transfer allowlisting is attempted.
+   * @notice Indicates that the contract is unpaused when a transfer allowlist is attempted.
    * @dev Thrown when {transferAllowlist} is called when the contract is unpaused.
    */
-  error TransferAllowlistingWhenUnpaused();
+  error TransferAllowlistWhenUnpaused();
 
   /**
    * @notice Indicates that the contract is unpaused when a transfer approval is attempted.
@@ -94,7 +94,7 @@ contract KpkToken is
    * @dev Throws when {transferAllowlist} is called with the zero address as `sender`.
    * @param sender Address to be allowlisted to transfer tokens.
    */
-  error InvalidTransferAllowlisting(address sender);
+  error InvalidTransferAllowlist(address sender);
 
   /**
    * @notice Indicates a failure with the `sender` to be allowed to transfer tokens.
@@ -145,21 +145,21 @@ contract KpkToken is
    * is paused.
    * @dev Allowlists `_owner` so that it can transfer tokens via {transfer}, {transferFrom}, {burn} and
    * {burnFrom}. Can only be called by the token contract's owner.
-   * Emits a {TransferAllowlisting} event.
-   * Reverts with {TransferAllowlistingWhenUnpaused} if called when the contract is unpaused.
-   * Reverts with {InvalidTransferAllowlisting} if `sender` is the zero address.
+   * Emits a {TransferAllowlist} event.
+   * Reverts with {TransferAllowlistWhenUnpaused} if called when the contract is unpaused.
+   * Reverts with {InvalidTransferAllowlist} if `sender` is the zero address.
    * @param sender Address that is allowlisted to transfer tokens.
    * @param allowlisted Boolean indicating whether `sender` is allowlisted.
    */
   function transferAllowlist(address sender, bool allowlisted) public onlyOwner {
     if (!paused()) {
-      revert TransferAllowlistingWhenUnpaused();
+      revert TransferAllowlistWhenUnpaused();
     }
     if (sender == address(0)) {
-      revert InvalidTransferAllowlisting(address(0));
+      revert InvalidTransferAllowlist(address(0));
     }
     _transferAllowlisted[sender] = allowlisted;
-    emit TransferAllowlisting(sender, allowlisted);
+    emit TransferAllowlist(sender, allowlisted);
   }
 
   /**
