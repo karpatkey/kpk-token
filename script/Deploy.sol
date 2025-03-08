@@ -58,7 +58,7 @@ abstract contract DeployToken is Script {
     address kpktokenProxyAddress = Upgrades.deployTransparentProxy(
       'KpkToken.sol',
       address(timelockController), // Owner of the proxy admin
-      abi.encodeCall(KpkToken.initialize, _deployerAddress) // The token contract owner is at first the deployer, to be able to create the vesting plans
+      abi.encodeWithSignature('initialize(address)', _deployerAddress) // The token contract owner is at first the deployer, to be able to create the vesting plans
     );
     kpkToken = KpkToken(kpktokenProxyAddress);
 
