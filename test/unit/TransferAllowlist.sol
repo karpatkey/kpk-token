@@ -23,7 +23,7 @@ contract UnitTestTransferAllowlist is Base {
     _kpktoken.transferAllowlist(_randomAddress, true);
   }
 
-  function testTransferAllowlistExpectedRevertTransferAllowlistingWhenUnpaused() public {
+  function testTransferAllowlistExpectedRevertTransferAllowlistWhenUnpaused() public {
     address _sender = makeAddr('sender');
     vm.startPrank(_owner);
     _kpktoken.unpause();
