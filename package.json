@@ -35,6 +35,7 @@
     "package.json": "sort-package-json"
   },
   "dependencies": {
+    "@chainlink/contracts-ccip": "^1.5.0",
     "@openzeppelin/contracts": "5.0.2",
     "@openzeppelin/contracts-upgradeable": "5.0.2",
     "@openzeppelin/foundry-upgrades": "v0.3.6",
