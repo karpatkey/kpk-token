@@ -67,8 +67,8 @@ jobs:
       - name: Create env file
         run: |
           touch .env
-          echo MAINNET_RPC="${{ vars.KNODE_URL }}/ethereum?${{ secrets.KPK_TOKEN_CI_API_KEY }}" >> .env
-          echo SEPOLIA_RPC="${{ vars.KNODE_URL }}/sepolia?${{ secrets.KPK_TOKEN_CI_API_KEY }}" >> .env
+          echo MAINNET_RPC="${{ vars.KNODE_URL }}/ethereum?key=${{ secrets.KNODE_API_KEY }}" >> .env
+          echo SEPOLIA_RPC="${{ vars.KNODE_URL }}/sepolia?key=${{ secrets.KNODE_API_KEY }}" >> .env
           cat .env
 
       - name: Run tests
