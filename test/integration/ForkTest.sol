@@ -8,7 +8,7 @@ contract ForkTest is Test {
   uint256 fork;
   /// @dev set BASE_RPC_URL in .env to run mainnet tests
   string RPC_URL = vm.envString('MAINNET_RPC');
-  /// @dev The address of the Safe Create Call on Mainnet
+  /// @dev The address of the Safe Create Call contract on Mainnet
   ISafeCreateCall safeCreateCall = ISafeCreateCall(SAFE_CREATE_CALL);
 
   function _forkSetupBefore() public {
