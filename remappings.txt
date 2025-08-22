@@ -8,5 +8,6 @@ interfaces/=src/interfaces
 @openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
 @openzeppelin/foundry-upgrades/src/=node_modules/@openzeppelin/foundry-upgrades/src/
+@chainlink=node_modules/@chainlink/contracts-ccip
 
 
