@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "kpk governance token",
-  "homepage": "https://github.com/karpatkey/kpk-token#readme",
+  "homepage": "https://github.com/kpk/kpk-token#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karpatkey/kpk-token.git"
+    "url": "git+https://github.com/kpk/kpk-token.git"
   },
   "license": "MIT",
   "author": "kpk",
