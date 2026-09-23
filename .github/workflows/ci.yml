@@ -30,16 +30,12 @@ jobs:
       - name: Precompile using via-ir=true
         run: yarn build
 
-      - name: Create env file
-        run: |
-          touch .env
-          echo MAINNET_RPC="${{ vars.KNODE_URL }}/ethereum?key=${{ secrets.KNODE_API_KEY }}" >> .env
-          echo SEPOLIA_RPC="${{ vars.KNODE_URL }}/sepolia?key=${{ secrets.KNODE_API_KEY }}" >> .env
-          cat .env
-
       - name: Run tests
         shell: bash
         run: yarn test:unit
+        env:
+          MAINNET_RPC: ${{ secrets.MAINNET_RPC }}
+          SEPOLIA_RPC: ${{ secrets.SEPOLIA_RPC }}
 
   integration-tests:
     name: Run Integration Tests
@@ -64,15 +60,11 @@ jobs:
       - name: Precompile via-ir=true
         run: yarn build
 
-      - name: Create env file
-        run: |
-          touch .env
-          echo MAINNET_RPC="${{ vars.KNODE_URL }}/ethereum?key=${{ secrets.KNODE_API_KEY }}" >> .env
-          echo SEPOLIA_RPC="${{ vars.KNODE_URL }}/sepolia?key=${{ secrets.KNODE_API_KEY }}" >> .env
-          cat .env
-
       - name: Run tests
         run: yarn test:integration
+        env:
+          MAINNET_RPC: ${{ secrets.MAINNET_RPC }}
+          SEPOLIA_RPC: ${{ secrets.SEPOLIA_RPC }}
 
   lint:
     name: Lint Commit Messages
